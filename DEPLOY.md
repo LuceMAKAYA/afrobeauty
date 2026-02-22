@@ -60,7 +60,7 @@ npm install
    cd afrobeauty
    git init
    git add .
-   git commit -m "🚀 Afro Beauty — lancement"
+   git commit -m "Afro Beauty — lancement"
    git remote add origin https://github.com/TON_USERNAME/afrobeauty.git
    git push -u origin main
    ```
