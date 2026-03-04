@@ -53,7 +53,7 @@ const BOXES = [
     duration: "3–5h",
     rating: 4.8,
     ratingCount: 67,
-    img: "https://images.unsplash.com/photo-1622476793601-9c754dc38380?w=800&q=80",
+    img: "images/natte.png",
     imgCart:
       "https://images.unsplash.com/photo-1622476793601-9c754dc38380?w=200&q=80",
     desc: "Des nattes classiques sublimées par des perles dorées, argentées ou colorées. La box inclut une sélection de perles assorties pour personnaliser entièrement ta coiffure.",
@@ -90,9 +90,8 @@ const BOXES = [
     duration: "2–4h",
     rating: 4.8,
     ratingCount: 89,
-    img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=80",
-    imgCart:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80",
+    img: "../images/twist vanille.png",
+    imgCart: "../images/twist vanille.png",
     desc: "Le twist vanille, c'est le côté romantique et naturel de la coiffure afro. Rapide à réaliser, cette coiffure met en valeur la texture naturelle de tes cheveux.",
     includes: [
       { icon: "🧶", label: "Mèches twist premium (4 paquets)" },

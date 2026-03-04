@@ -255,7 +255,7 @@ nav {
 .hero-bg-img {
   position: absolute;
   inset: 0;
-  background-image: url("https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1600&q=80");
+  background-image: url("/images/coiffure.png");
   background-size: cover;
   background-position: center 20%;
   will-change: transform;
