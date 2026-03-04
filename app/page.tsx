@@ -53,8 +53,8 @@ const BOXES = [
     duration: "3–5h",
     rating: 4.8,
     ratingCount: 67,
-    img: "images/natte.png",
-    imgCart: "images/natte.png",
+    img: "./images/natte.jpg",
+    imgCart: "./images/natte.jpg",
     desc: "Des nattes classiques sublimées par des perles dorées, argentées ou colorées. La box inclut une sélection de perles assorties pour personnaliser entièrement ta coiffure.",
     includes: [
       { icon: "🧶", label: "Mèches lisses premium (3 paquets)" },
@@ -89,8 +89,8 @@ const BOXES = [
     duration: "2–4h",
     rating: 4.8,
     ratingCount: 89,
-    img: "images/twist vanille.png",
-    imgCart: "images/twist vanille.png",
+    img: "./images/twist vanille.jpg",
+    imgCart: "./images/twist vanille.jpg",
     desc: "Le twist vanille, c'est le côté romantique et naturel de la coiffure afro. Rapide à réaliser, cette coiffure met en valeur la texture naturelle de tes cheveux.",
     includes: [
       { icon: "🧶", label: "Mèches twist premium (4 paquets)" },
@@ -125,9 +125,8 @@ const BOXES = [
     duration: "3–5h",
     rating: 4.7,
     ratingCount: 63,
-    img: "https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=800&q=80",
-    imgCart:
-      "https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=200&q=80",
+    img: "./images/twist.jpg",
+    imgCart: "./images/twist.jpg",
     desc: "Les passion twists ont envahi TikTok et Instagram. Leur texture frisée crée un effet bohème irrésistible, parfaites pour toutes les occasions.",
     includes: [
       { icon: "🧶", label: "Mèches frisées passion (4 paquets)" },
@@ -162,9 +161,8 @@ const BOXES = [
     duration: "1–2h",
     rating: 4.9,
     ratingCount: 114,
-    img: "https://images.unsplash.com/photo-1569880153113-76e33fc52d5f?w=800&q=80",
-    imgCart:
-      "https://images.unsplash.com/photo-1569880153113-76e33fc52d5f?w=200&q=80",
+    img: "./images/crochet.jpg",
+    imgCart: "./images/crochet.jpg",
     desc: "La technique crochet est parfaite si tu veux un résultat rapide et impressionnant. En 1 à 2h seulement, tu obtiens une coiffure volumineuse et protectrice qui dure des semaines.",
     includes: [
       { icon: "🧶", label: "Mèches crochet (6 paquets)" },
@@ -199,9 +197,8 @@ const BOXES = [
     duration: "5–8h",
     rating: 5.0,
     ratingCount: 38,
-    img: "https://images.unsplash.com/photo-1596879711960-7e97b90a8680?w=800&q=80",
-    imgCart:
-      "https://images.unsplash.com/photo-1596879711960-7e97b90a8680?w=200&q=80",
+    img: "./images/braid 1.jpg",
+    imgCart: "./images/braid 1.jpg",
     desc: "Les boho braids combinent des tresses classiques avec des mèches lâches frisées qui s'échappent pour un rendu romantique et sauvage. La coiffure la plus photographiée de notre collection.",
     includes: [
       { icon: "🧶", label: "Mèches braids (3 paquets)" },
