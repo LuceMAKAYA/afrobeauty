@@ -21,45 +21,19 @@ export default function Home() {
     }
     document.getElementById("themeToggle")!.onclick = toggleTheme;
 
-    /* ══ CURSEUR ══ */
+    /* ══ CURSEUR SIMPLE ══ */
     const dot = document.getElementById("cursorDot")!;
-    const ring = document.getElementById("cursorRing")!;
-    let mx = 0,
-      my = 0,
-      rx = 0,
-      ry = 0;
     document.addEventListener("mousemove", (e) => {
-      mx = e.clientX;
-      my = e.clientY;
-      dot.style.left = mx + "px";
-      dot.style.top = my + "px";
+      dot.style.left = e.clientX + "px";
+      dot.style.top = e.clientY + "px";
     });
-    (function animRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + "px";
-      ring.style.top = ry + "px";
-      requestAnimationFrame(animRing);
-    })();
     document
       .querySelectorAll(
         "button, a, .box-card, .box-featured, .how-step, .review-card",
       )
       .forEach((el) => {
-        el.addEventListener("mouseenter", () => {
-          ring.style.width = "52px";
-          ring.style.height = "52px";
-          ring.style.borderColor = "rgba(201,168,76,.8)";
-          dot.style.width = "12px";
-          dot.style.height = "12px";
-        });
-        el.addEventListener("mouseleave", () => {
-          ring.style.width = "36px";
-          ring.style.height = "36px";
-          ring.style.borderColor = "rgba(201,168,76,.5)";
-          dot.style.width = "8px";
-          dot.style.height = "8px";
-        });
+        el.addEventListener("mouseenter", () => dot.classList.add("hover"));
+        el.addEventListener("mouseleave", () => dot.classList.remove("hover"));
       });
 
     /* ══ PARTICULES ══ */
@@ -252,14 +226,12 @@ export default function Home() {
       modalOpen = true;
       document.getElementById("productModal")!.classList.add("open");
       document.body.style.overflow = "hidden";
-      ring.style.opacity = "0";
     }
 
     function closeProduct() {
       modalOpen = false;
       document.getElementById("productModal")!.classList.remove("open");
       document.body.style.overflow = drawerOpen ? "hidden" : "";
-      ring.style.opacity = "1";
     }
 
     document.getElementById("productModal")!.addEventListener("click", (e) => {
@@ -470,7 +442,6 @@ export default function Home() {
   return (
     <>
       <div className="cursor-dot" id="cursorDot"></div>
-      <div className="cursor-ring" id="cursorRing"></div>
       <div className="toast" id="toast"></div>
 
       {/* NAV */}
