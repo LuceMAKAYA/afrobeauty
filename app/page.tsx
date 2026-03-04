@@ -53,8 +53,8 @@ const BOXES = [
     duration: "3–5h",
     rating: 4.8,
     ratingCount: 67,
-    img: "./images/natte.jpg",
-    imgCart: "./images/natte.jpg",
+    img: "/boxes/natte.jpg",
+    imgCart: "/boxes/natte.jpg",
     desc: "Des nattes classiques sublimées par des perles dorées, argentées ou colorées. La box inclut une sélection de perles assorties pour personnaliser entièrement ta coiffure.",
     includes: [
       { icon: "🧶", label: "Mèches lisses premium (3 paquets)" },
@@ -125,7 +125,7 @@ const BOXES = [
     duration: "3–5h",
     rating: 4.7,
     ratingCount: 63,
-    img: "./images/twist.jpg",
+    img: "./boxes/twist.jpg",
     imgCart: "./images/twist.jpg",
     desc: "Les passion twists ont envahi TikTok et Instagram. Leur texture frisée crée un effet bohème irrésistible, parfaites pour toutes les occasions.",
     includes: [
@@ -161,8 +161,8 @@ const BOXES = [
     duration: "1–2h",
     rating: 4.9,
     ratingCount: 114,
-    img: "./images/crochet.jpg",
-    imgCart: "./images/crochet.jpg",
+    img: "/boxes/crochet.jpg",
+    imgCart: "/boxes/crochet.jpg",
     desc: "La technique crochet est parfaite si tu veux un résultat rapide et impressionnant. En 1 à 2h seulement, tu obtiens une coiffure volumineuse et protectrice qui dure des semaines.",
     includes: [
       { icon: "🧶", label: "Mèches crochet (6 paquets)" },
@@ -197,8 +197,8 @@ const BOXES = [
     duration: "5–8h",
     rating: 5.0,
     ratingCount: 38,
-    img: "./images/braid 1.jpg",
-    imgCart: "./images/braid 1.jpg",
+    img: "/boxes/braid 1.jpg",
+    imgCart: "/boxes/braid 1.jpg",
     desc: "Les boho braids combinent des tresses classiques avec des mèches lâches frisées qui s'échappent pour un rendu romantique et sauvage. La coiffure la plus photographiée de notre collection.",
     includes: [
       { icon: "🧶", label: "Mèches braids (3 paquets)" },
