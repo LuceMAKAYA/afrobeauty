@@ -2962,3 +2962,78 @@ footer {
     padding: 8px 20px;
   }
 }
+
+/* ═══════════════════════════════════════
+   FILTRES INLINE (dans section boxes)
+═══════════════════════════════════════ */
+.filters-inline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+  transition: border-color 0.55s;
+}
+.sort-select {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 10px;
+  font-family: "Montserrat", sans-serif;
+  padding: 7px 12px;
+  outline: none;
+  transition: var(--trans);
+}
+
+/* ═══════════════════════════════════════
+   MODAL — éléments ajoutés/renommés
+═══════════════════════════════════════ */
+.modal-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.modal-score {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 20px;
+  color: var(--text);
+  transition: color 0.55s;
+}
+.modal-rev-count {
+  font-size: 10px;
+  color: var(--text-3);
+  transition: color 0.55s;
+}
+.modal-meta {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.modal-reviews-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+  margin-top: 4px;
+}
+.modal-revs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+
+/* footer link span */
+.footer-link {
+  font-size: 12px;
+  color: var(--text-3);
+  transition: color 0.2s;
+  cursor: none;
+}
+.footer-link:hover {
+  color: var(--gold);
+}

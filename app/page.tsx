@@ -1,40 +1,254 @@
 "use client";
-
 import { useEffect } from "react";
+
+const BOXES = [
+  {
+    id: "knotless",
+    name: "Knotless Braids",
+    category: "tresses",
+    catLabel: "Coiffure tressée",
+    subtitle: "Légères, naturelles, sans nœuds",
+    badge: "⭐ Best-seller",
+    badgeClass: "badge-pop",
+    price: 49,
+    oldPrice: 65,
+    diff: 2,
+    duration: "4–6h",
+    rating: 4.9,
+    ratingCount: 142,
+    img: "https://images.unsplash.com/photo-1614104895792-1d6cb01bce78?w=800&q=80",
+    imgCart:
+      "https://images.unsplash.com/photo-1614104895792-1d6cb01bce78?w=200&q=80",
+    desc: "La coiffure tendance par excellence. Légères sur le cuir chevelu, sans nœud à la racine — elles durent jusqu'à 8 semaines et s'adaptent à tous les styles.",
+    includes: [
+      { icon: "🧶", label: "Mèches knotless premium (3 paquets)" },
+      { icon: "🪮", label: "Peigne à queue professionnel" },
+      { icon: "🔴", label: "Élastiques noirs assortis (×50)" },
+      { icon: "💧", label: "Huile de soin pour les pointes" },
+      { icon: "📋", label: "Guide illustré étape par étape" },
+      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
+    ],
+    reviews: [
+      {
+        text: "Mes knotless sont impeccables au premier essai ! Le guide est tellement clair.",
+        author: "Aminata D. · Paris",
+      },
+      {
+        text: "La qualité des mèches est vraiment top, elles tiennent super bien.",
+        author: "Koné S. · Lyon",
+      },
+    ],
+  },
+  {
+    id: "nattes-perles",
+    name: "Nattes avec Perles",
+    category: "tresses",
+    catLabel: "Coiffure tressée",
+    subtitle: "Élégantes & personnalisables",
+    badge: "Nouveau",
+    badgeClass: "badge-new",
+    price: 44,
+    oldPrice: 58,
+    diff: 2,
+    duration: "3–5h",
+    rating: 4.8,
+    ratingCount: 67,
+    img: "https://images.unsplash.com/photo-1622476793601-9c754dc38380?w=800&q=80",
+    imgCart:
+      "https://images.unsplash.com/photo-1622476793601-9c754dc38380?w=200&q=80",
+    desc: "Des nattes classiques sublimées par des perles dorées, argentées ou colorées. La box inclut une sélection de perles assorties pour personnaliser entièrement ta coiffure.",
+    includes: [
+      { icon: "🧶", label: "Mèches lisses premium (3 paquets)" },
+      { icon: "🪮", label: "Peigne à queue + crochet" },
+      { icon: "✨", label: "Set de perles assorties" },
+      { icon: "🔴", label: "Élastiques fins transparents" },
+      { icon: "📋", label: "Guide illustré étape par étape" },
+      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
+    ],
+    reviews: [
+      {
+        text: "Les perles sont tellement jolies ! J'ai eu plein de compliments.",
+        author: "Fatoumata B. · Bordeaux",
+      },
+      {
+        text: "Super facile à faire avec le tuto. Les mèches sont de très bonne qualité.",
+        author: "Mariama C. · Marseille",
+      },
+    ],
+  },
+  {
+    id: "twist-vanille",
+    name: "Twist Vanille",
+    category: "twists",
+    catLabel: "Coiffure twistée",
+    subtitle: "Douceur & élégance naturelle",
+    badge: "Tendance",
+    badgeClass: "badge-tend",
+    price: 42,
+    oldPrice: 56,
+    diff: 1,
+    duration: "2–4h",
+    rating: 4.8,
+    ratingCount: 89,
+    img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=80",
+    imgCart:
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80",
+    desc: "Le twist vanille, c'est le côté romantique et naturel de la coiffure afro. Rapide à réaliser, cette coiffure met en valeur la texture naturelle de tes cheveux.",
+    includes: [
+      { icon: "🧶", label: "Mèches twist premium (4 paquets)" },
+      { icon: "💧", label: "Crème hydratante coiffante" },
+      { icon: "🪮", label: "Peigne à dents larges" },
+      { icon: "✨", label: "Huile de finition brillance" },
+      { icon: "📋", label: "Guide illustré étape par étape" },
+      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
+    ],
+    reviews: [
+      {
+        text: "Mes twists vanille ont tenu 3 semaines. C'est ma coiffure préférée maintenant !",
+        author: "Nadia M. · Bordeaux",
+      },
+      {
+        text: "Parfait pour débuter. La crème coiffante est excellente.",
+        author: "Aïcha T. · Nantes",
+      },
+    ],
+  },
+  {
+    id: "passion-twists",
+    name: "Passion Twists",
+    category: "twists",
+    catLabel: "Coiffure twistée",
+    subtitle: "Look bohème & romantique",
+    badge: null,
+    badgeClass: "",
+    price: 39,
+    oldPrice: 52,
+    diff: 2,
+    duration: "3–5h",
+    rating: 4.7,
+    ratingCount: 63,
+    img: "https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=800&q=80",
+    imgCart:
+      "https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=200&q=80",
+    desc: "Les passion twists ont envahi TikTok et Instagram. Leur texture frisée crée un effet bohème irrésistible, parfaites pour toutes les occasions.",
+    includes: [
+      { icon: "🧶", label: "Mèches frisées passion (4 paquets)" },
+      { icon: "🪮", label: "Peigne à queue fin" },
+      { icon: "💧", label: "Mousse coiffante légère" },
+      { icon: "✨", label: "Huile brillance finition" },
+      { icon: "📋", label: "Guide illustré étape par étape" },
+      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
+    ],
+    reviews: [
+      {
+        text: "Le look bohème que je voulais ! Tellement de compliments en une semaine.",
+        author: "Inès K. · Paris",
+      },
+      {
+        text: "Les mèches sont douces et naturelles, super résultat.",
+        author: "Rokia D. · Toulouse",
+      },
+    ],
+  },
+  {
+    id: "crochet",
+    name: "Crochet Braids",
+    category: "crochet",
+    catLabel: "Crochet",
+    subtitle: "Rapide, volumineuse & protectrice",
+    badge: "⚡ Rapide",
+    badgeClass: "badge-excl",
+    price: 46,
+    oldPrice: 60,
+    diff: 1,
+    duration: "1–2h",
+    rating: 4.9,
+    ratingCount: 114,
+    img: "https://images.unsplash.com/photo-1569880153113-76e33fc52d5f?w=800&q=80",
+    imgCart:
+      "https://images.unsplash.com/photo-1569880153113-76e33fc52d5f?w=200&q=80",
+    desc: "La technique crochet est parfaite si tu veux un résultat rapide et impressionnant. En 1 à 2h seulement, tu obtiens une coiffure volumineuse et protectrice qui dure des semaines.",
+    includes: [
+      { icon: "🧶", label: "Mèches crochet (6 paquets)" },
+      { icon: "🪡", label: "Aiguille crochet professionnelle" },
+      { icon: "🔴", label: "Élastiques et épingles invisibles" },
+      { icon: "💧", label: "Spray hydratant protection" },
+      { icon: "📋", label: "Guide illustré étape par étape" },
+      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
+    ],
+    reviews: [
+      {
+        text: "En 90 minutes chrono ! Je n'arrive pas à croire que c'est aussi rapide et beau.",
+        author: "Binta F. · Strasbourg",
+      },
+      {
+        text: "L'aiguille crochet incluse est de très bonne qualité, ça change tout.",
+        author: "Djénéba M. · Lille",
+      },
+    ],
+  },
+  {
+    id: "boho-braids",
+    name: "Boho Braids",
+    category: "boho",
+    catLabel: "Style Boho",
+    subtitle: "Sauvage, libre & romantique",
+    badge: "✦ Exclusif",
+    badgeClass: "badge-excl",
+    price: 52,
+    oldPrice: 68,
+    diff: 3,
+    duration: "5–8h",
+    rating: 5.0,
+    ratingCount: 38,
+    img: "https://images.unsplash.com/photo-1596879711960-7e97b90a8680?w=800&q=80",
+    imgCart:
+      "https://images.unsplash.com/photo-1596879711960-7e97b90a8680?w=200&q=80",
+    desc: "Les boho braids combinent des tresses classiques avec des mèches lâches frisées qui s'échappent pour un rendu romantique et sauvage. La coiffure la plus photographiée de notre collection.",
+    includes: [
+      { icon: "🧶", label: "Mèches braids (3 paquets)" },
+      { icon: "🌿", label: "Mèches boho frisées (2 paquets)" },
+      { icon: "🪮", label: "Peigne à queue + crochet" },
+      { icon: "💧", label: "Sérum anti-frizz finition" },
+      { icon: "📋", label: "Guide illustré étape par étape" },
+      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
+    ],
+    reviews: [
+      {
+        text: "La coiffure la plus belle que j'ai jamais portée. Tout le monde me demande où je l'ai apprise !",
+        author: "Safi O. · Paris",
+      },
+      {
+        text: "Un peu plus long à faire mais le résultat vaut VRAIMENT le coup.",
+        author: "Djeneba R. · Lyon",
+      },
+    ],
+  },
+];
 
 export default function Home() {
   useEffect(() => {
     /* ══ THÈME ══ */
-    let currentTheme = localStorage.getItem("abTheme") || "dark";
-    document.documentElement.setAttribute("data-theme", currentTheme);
-    updateThemeUI();
-
-    function toggleTheme() {
-      currentTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", currentTheme);
-      localStorage.setItem("abTheme", currentTheme);
-      updateThemeUI();
+    let theme = localStorage.getItem("abTheme") || "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+    syncThemeIcon();
+    function syncThemeIcon() {
+      const el = document.getElementById("themeIcon");
+      if (el) el.textContent = theme === "dark" ? "🌙" : "☀️";
     }
-    function updateThemeUI() {
-      const icon = document.getElementById("themeIcon");
-      if (icon) icon.textContent = currentTheme === "dark" ? "🌙" : "☀️";
-    }
-    document.getElementById("themeToggle")!.onclick = toggleTheme;
+    document.getElementById("themeToggle")?.addEventListener("click", () => {
+      theme = theme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("abTheme", theme);
+      syncThemeIcon();
+    });
 
-    /* ══ CURSEUR SIMPLE ══ */
+    /* ══ CURSEUR ══ */
     const dot = document.getElementById("cursorDot")!;
     document.addEventListener("mousemove", (e) => {
       dot.style.left = e.clientX + "px";
       dot.style.top = e.clientY + "px";
     });
-    document
-      .querySelectorAll(
-        "button, a, .box-card, .box-featured, .how-step, .review-card",
-      )
-      .forEach((el) => {
-        el.addEventListener("mouseenter", () => dot.classList.add("hover"));
-        el.addEventListener("mouseleave", () => dot.classList.remove("hover"));
-      });
 
     /* ══ PARTICULES ══ */
     const pc = document.getElementById("particles")!;
@@ -46,20 +260,20 @@ export default function Home() {
     }
 
     /* ══ SCROLL REVEAL ══ */
-    const obs = new IntersectionObserver(
+    const revObs = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
             e.target.classList.add("visible");
-            obs.unobserve(e.target);
+            revObs.unobserve(e.target);
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+      { threshold: 0.08, rootMargin: "0px 0px -30px 0px" },
     );
     document
       .querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale")
-      .forEach((el) => obs.observe(el));
+      .forEach((el) => revObs.observe(el));
 
     /* ══ PARALLAX + NAV SHADOW ══ */
     const heroBg = document.querySelector(".hero-bg-img") as HTMLElement;
@@ -85,165 +299,215 @@ export default function Home() {
       });
     });
 
-    /* ══ PRODUITS ══ */
-    const PRODUCTS: Record<string, any> = {
-      knotless: {
-        id: "knotless",
-        name: "Box Knotless",
-        titleHtml: "Box <em>Knotless</em>",
-        subtitle: "Braids sans noeuds",
-        category: "Coiffure tressée · Best-seller",
-        badge: "⭐ Best-seller",
-        reviews: "142 avis vérifiés",
-        desc: "Notre box la plus populaire. Tout ce qu'il faut pour des knotless braids parfaites — mèches premium, accessoires, tuto vidéo pas à pas.",
-        price: 49,
-        oldPrice: 65,
-        img: "https://images.unsplash.com/photo-1614104895792-1d6cb01bce78?w=900&q=80",
-        imgCart:
-          "https://images.unsplash.com/photo-1614104895792-1d6cb01bce78?w=200&q=80",
-        includes: [
-          { icon: "🧶", label: "Mèches knotless premium (3 paquets)" },
-          { icon: "🪮", label: "Peigne à queue professionnel" },
-          { icon: "🔴", label: "Élastiques noirs assortis (x50)" },
-          { icon: "💧", label: "Huile de soin pour les pointes" },
-          { icon: "📋", label: "Guide illustré étape par étape" },
-          { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-        ],
-      },
-      braids: {
-        id: "braids",
-        name: "Box Braids",
-        titleHtml: "Box <em>Braids</em>",
-        subtitle: "Box braids classiques",
-        category: "Coiffure tressée · Nouveau",
-        badge: "Nouveau",
-        reviews: "87 avis vérifiés",
-        desc: "La box braids classique revisitée. Des mèches de qualité supérieure pour un résultat net, durable et sans casse.",
-        price: 39,
-        oldPrice: 52,
-        img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900&q=80",
-        imgCart:
-          "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80",
-        includes: [
-          { icon: "🧶", label: "Mèches lisses premium (3 paquets)" },
-          { icon: "🪮", label: "Peigne à queue + démêloir" },
-          { icon: "🔴", label: "Élastiques noirs assortis" },
-          { icon: "✨", label: "Spray brillance finition" },
-          { icon: "📋", label: "Guide illustré étape par étape" },
-          { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-        ],
-      },
-      twists: {
-        id: "twists",
-        name: "Box Passion Twists",
-        titleHtml: "Box <em>Passion Twists</em>",
-        subtitle: "Look bohème & romantique",
-        category: "Coiffure twistée · Tendance",
-        badge: "Tendance",
-        reviews: "63 avis vérifiés",
-        desc: "Des passion twists bohèmes et romantiques. Le look tendance TikTok, sans les heures de recherche.",
-        price: 42,
-        oldPrice: 56,
-        img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=900&q=80",
-        imgCart:
-          "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80",
-        includes: [
-          { icon: "🧶", label: "Mèches frisées passion (4 paquets)" },
-          { icon: "🪮", label: "Peigne à queue fin" },
-          { icon: "💧", label: "Mousse coiffante légère" },
-          { icon: "✨", label: "Huile brillance finition" },
-          { icon: "📋", label: "Guide illustré étape par étape" },
-          { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-        ],
-      },
-      budget: {
-        id: "budget",
-        name: "Budget Queen",
-        titleHtml: "<em>Budget Queen</em>",
-        subtitle: "Qualité max, prix mini",
-        category: "Gamme Étudiante ✦",
-        badge: "✦ Étudiante",
-        reviews: "198 avis vérifiés",
-        desc: "Parce que chaque reine mérite d'être coiffée. La même qualité, les mêmes tutos, au prix le plus accessible.",
-        price: 29,
-        oldPrice: 39,
-        img: "https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=900&q=80",
-        imgCart:
-          "https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=200&q=80",
-        includes: [
-          { icon: "🧶", label: "Mèches sélectionnées qualité" },
-          { icon: "🪮", label: "Accessoires essentiels" },
-          { icon: "📋", label: "Guide illustré complet" },
-          { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-          { icon: "💌", label: "Carte de bienvenue" },
-          { icon: "💛", label: "Accès communauté privée" },
-        ],
-      },
-    };
+    /* ══ FILTRES CATALOGUE ══ */
+    let activeFilter = "all";
+    document.querySelectorAll(".filter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeFilter = (btn as HTMLElement).dataset.filter || "all";
+        renderGrid();
+      });
+    });
+    document
+      .getElementById("sortSelect")
+      ?.addEventListener("change", renderGrid);
+
+    /* ══ RENDER GRILLE ══ */
+    function getFiltered() {
+      let boxes =
+        activeFilter === "all"
+          ? [...BOXES]
+          : BOXES.filter((b) => b.category === activeFilter);
+      const sort = (document.getElementById("sortSelect") as HTMLSelectElement)
+        ?.value;
+      if (sort === "price-asc") boxes.sort((a, b) => a.price - b.price);
+      if (sort === "price-desc") boxes.sort((a, b) => b.price - a.price);
+      if (sort === "diff-asc") boxes.sort((a, b) => a.diff - b.diff);
+      return boxes;
+    }
+
+    function renderGrid() {
+      const boxes = getFiltered();
+      const grid = document.getElementById("catGrid")!;
+      const cnt = document.getElementById("resultCount");
+      if (cnt)
+        cnt.textContent =
+          boxes.length + " box disponible" + (boxes.length > 1 ? "s" : "");
+
+      const pct = (b: any) => Math.round((1 - b.price / b.oldPrice) * 100);
+      const stars = (r: number) =>
+        "★".repeat(Math.round(r)) + "☆".repeat(5 - Math.round(r));
+      const dots = (d: number) =>
+        [1, 2, 3]
+          .map(
+            (i) => `<div class="cc-diff-dot${i <= d ? " filled" : ""}"></div>`,
+          )
+          .join("");
+
+      grid.innerHTML = boxes
+        .map(
+          (b, i) => `
+        <div class="cat-card reveal" data-id="${b.id}" style="animation-delay:${i * 0.08}s">
+          <div class="cc-img-wrap">
+            <img src="${b.img}" alt="${b.name}" loading="lazy">
+            <div class="cc-overlay"></div>
+            ${b.badge ? `<div class="cc-badge ${b.badgeClass}">${b.badge}</div>` : ""}
+            <div class="cc-diff">${dots(b.diff)}</div>
+            <div class="cc-img-text">
+              <div class="cc-cat">${b.catLabel}</div>
+              <div class="cc-name">${b.name}</div>
+            </div>
+          </div>
+          <div class="cc-bottom">
+            <div class="cc-price-block">
+              <span class="cc-price">${b.price}€</span>
+              <span class="cc-price-old">${b.oldPrice}€</span>
+              <span class="cc-save">−${pct(b)}%</span>
+            </div>
+            <div class="cc-stars">${stars(b.rating)}<span class="cc-stars-count">${b.rating} (${b.ratingCount} avis)</span></div>
+            <div class="cc-pills">
+              ${b.includes
+                .slice(0, 3)
+                .map(
+                  (inc: any) =>
+                    `<span class="cc-pill">${inc.icon} ${inc.label.split("(")[0].trim()}</span>`,
+                )
+                .join("")}
+            </div>
+            <div class="cc-actions">
+              <button class="btn-detail" data-detail="${b.id}">Voir le détail</button>
+              <button class="btn-add" data-add="${b.id}">Ajouter au panier</button>
+            </div>
+          </div>
+        </div>`,
+        )
+        .join("");
+
+      grid.querySelectorAll("[data-detail]").forEach((btn) =>
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openProduct((btn as HTMLElement).dataset.detail!);
+        }),
+      );
+      grid.querySelectorAll("[data-add]").forEach((btn) =>
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          quickAdd((btn as HTMLElement).dataset.add!);
+        }),
+      );
+      grid
+        .querySelectorAll(".cat-card")
+        .forEach((card) =>
+          card.addEventListener("click", () =>
+            openProduct((card as HTMLElement).dataset.id!),
+          ),
+        );
+      grid.querySelectorAll(".cat-card, button").forEach((el) => {
+        el.addEventListener("mouseenter", () => dot.classList.add("hover"));
+        el.addEventListener("mouseleave", () => dot.classList.remove("hover"));
+      });
+
+      requestAnimationFrame(() => {
+        grid.querySelectorAll(".reveal").forEach((el) => {
+          if (!el.classList.contains("visible")) revObs.observe(el);
+        });
+      });
+    }
 
     /* ══ MODAL ══ */
     let currentProduct: any = null;
     let wishlist: string[] = [];
-    let modalOpen = false;
+    let drawerOpen = false;
 
     function openProduct(id: string) {
-      const p = PRODUCTS[id];
+      const p = BOXES.find((b) => b.id === id);
       if (!p) return;
       currentProduct = p;
       const pct = Math.round((1 - p.price / p.oldPrice) * 100);
-      const imgEl = document.getElementById("modalImg") as HTMLImageElement;
-      imgEl.src = p.img;
-      imgEl.alt = p.name;
-      const s = (id: string, val: string, html = false) => {
-        const el = document.getElementById(id);
-        if (el) html ? (el.innerHTML = val) : (el.textContent = val);
-      };
-      s("modalBadge", p.badge);
-      s("modalImgPrice", p.price + "€");
-      s("modalImgOld", p.oldPrice + "€");
-      s("modalImgSave", "−" + pct + "%");
-      s("modalCat", p.category);
-      s("modalTitle", p.titleHtml, true);
-      s("modalSubtitle", p.subtitle);
-      s("modalReviews", p.reviews);
-      s("modalDesc", p.desc);
-      s("modalPriceMain", p.price + "€");
-      s("modalPriceOld", p.oldPrice + "€");
-      s("modalSaveTag", "−" + pct + "%");
-      const inc = document.getElementById("modalIncludes")!;
-      inc.innerHTML = p.includes
+
+      const img = document.getElementById("modalImg") as HTMLImageElement;
+      img.src = p.img;
+      img.alt = p.name;
+
+      const badge = document.getElementById("modalBadge")!;
+      badge.textContent = p.badge || "";
+      badge.style.display = p.badge ? "block" : "none";
+      document.getElementById("modalPriceBig")!.textContent = p.price + "€";
+      document.getElementById("modalOldBig")!.textContent = p.oldPrice + "€";
+      document.getElementById("modalSaveBig")!.textContent = "−" + pct + "%";
+      document.getElementById("modalCat")!.textContent = p.catLabel;
+      document.getElementById("modalTitle")!.innerHTML = p.name.replace(
+        /(Knotless|Vanille|Passion|Boho|Crochet|Perles)/i,
+        "<em>$1</em>",
+      );
+      document.getElementById("modalSub")!.textContent = p.subtitle;
+      document.getElementById("modalStars")!.textContent = "★".repeat(
+        Math.round(p.rating),
+      );
+      document.getElementById("modalScore")!.textContent = String(p.rating);
+      document.getElementById("modalRevCount")!.textContent =
+        "(" + p.ratingCount + " avis)";
+
+      const diffLabels = ["", "Facile", "Intermédiaire", "Avancée"];
+      document.getElementById("modalMeta")!.innerHTML = `
+        <div class="cat-meta-item"><span class="cat-meta-icon">⏱</span> ${p.duration}</div>
+        <div class="cat-meta-item">
+          <span class="cat-meta-icon">💪</span>
+          <div class="cat-meta-dots">${[1, 2, 3].map((i) => `<div class="cat-meta-dot${i <= p.diff ? " on" : ""}"></div>`).join("")}</div>
+          ${diffLabels[p.diff]}
+        </div>`;
+
+      document.getElementById("modalDesc")!.textContent = p.desc;
+
+      document.getElementById("modalIncludes")!.innerHTML = p.includes
         .map(
-          (i: any) =>
-            `<div class="m-include"><span class="m-include-icon">${i.icon}</span><span>${i.label}</span></div>`,
+          (inc: any) =>
+            `<div class="cat-m-inc"><span class="cat-m-inc-icon">${inc.icon}</span><span>${inc.label}</span></div>`,
         )
         .join("");
+
+      document.getElementById("modalRevs")!.innerHTML = p.reviews
+        .map(
+          (r: any) => `
+        <div class="cat-m-rev">
+          <div class="cat-m-rev-stars">★★★★★</div>
+          <div class="cat-m-rev-text">«${r.text}»</div>
+          <div class="cat-m-rev-auth">${r.author}</div>
+        </div>`,
+        )
+        .join("");
+
       const wb = document.getElementById("modalWishBtn")!;
       wb.textContent = wishlist.includes(p.id) ? "♥" : "♡";
       wb.classList.toggle("wished", wishlist.includes(p.id));
+
       document.getElementById("modalAddBtn")!.classList.remove("added");
-      s("modalAddIcon", "🛒");
-      s("modalAddText", "Ajouter au panier");
-      modalOpen = true;
+      document.getElementById("modalAddIcon")!.textContent = "🛒";
+      document.getElementById("modalAddText")!.textContent =
+        "Ajouter au panier";
+
       document.getElementById("productModal")!.classList.add("open");
       document.body.style.overflow = "hidden";
     }
 
     function closeProduct() {
-      modalOpen = false;
       document.getElementById("productModal")!.classList.remove("open");
       document.body.style.overflow = drawerOpen ? "hidden" : "";
     }
 
-    document.getElementById("productModal")!.addEventListener("click", (e) => {
+    document.getElementById("productModal")?.addEventListener("click", (e) => {
       const t = e.target as HTMLElement;
       if (t.id === "productModal" || t.classList.contains("modal-backdrop"))
         closeProduct();
     });
     document
-      .getElementById("modalCloseBtn")!
-      .addEventListener("click", closeProduct);
+      .getElementById("modalCloseBtn")
+      ?.addEventListener("click", closeProduct);
 
-    document.getElementById("modalAddBtn")!.addEventListener("click", () => {
+    document.getElementById("modalAddBtn")?.addEventListener("click", () => {
       if (!currentProduct) return;
       addToCart({
         id: currentProduct.id,
@@ -257,7 +521,7 @@ export default function Home() {
       setTimeout(() => closeProduct(), 800);
     });
 
-    document.getElementById("modalWishBtn")!.addEventListener("click", () => {
+    document.getElementById("modalWishBtn")?.addEventListener("click", () => {
       if (!currentProduct) return;
       const id = currentProduct.id;
       const wb = document.getElementById("modalWishBtn")!;
@@ -274,15 +538,14 @@ export default function Home() {
       }
     });
 
-    document.querySelectorAll("[data-product]").forEach((el) => {
-      el.addEventListener("click", () =>
-        openProduct((el as HTMLElement).dataset.product!),
-      );
-    });
-
     /* ══ PANIER ══ */
     let cart: any[] = [];
-    let drawerOpen = false;
+
+    function quickAdd(id: string) {
+      const p = BOXES.find((b) => b.id === id);
+      if (p)
+        addToCart({ id: p.id, name: p.name, price: p.price, img: p.imgCart });
+    }
 
     function addToCart(product: any) {
       const ex = cart.find((i) => i.id === product.id);
@@ -292,12 +555,10 @@ export default function Home() {
       showToast("✦ " + product.name + " ajouté !");
       openDrawer();
     }
-
     function removeFromCart(id: string) {
       cart = cart.filter((i) => i.id !== id);
       renderCart();
     }
-
     function updateQty(id: string, delta: number) {
       const item = cart.find((i) => i.id === id);
       if (!item) return;
@@ -315,7 +576,7 @@ export default function Home() {
       document.getElementById("drawerTotal")!.textContent = total + "€";
       const foot = document.getElementById("drawerFoot")!;
       const body = document.getElementById("drawerBody")!;
-      if (cart.length === 0) {
+      if (!cart.length) {
         body.innerHTML =
           '<div class="d-empty"><span>🛒</span><p>Ton panier est vide</p></div>';
         foot.style.display = "none";
@@ -337,19 +598,23 @@ export default function Home() {
         </div>`,
         )
         .join("");
-      body.querySelectorAll(".qty-b").forEach((btn) =>
-        btn.addEventListener("click", () => {
-          updateQty(
-            (btn as HTMLElement).dataset.id!,
-            parseInt((btn as HTMLElement).dataset.delta!),
-          );
-        }),
-      );
-      body.querySelectorAll(".d-rm").forEach((btn) =>
-        btn.addEventListener("click", () => {
-          removeFromCart((btn as HTMLElement).dataset.id!);
-        }),
-      );
+      body
+        .querySelectorAll(".qty-b")
+        .forEach((btn) =>
+          btn.addEventListener("click", () =>
+            updateQty(
+              (btn as HTMLElement).dataset.id!,
+              parseInt((btn as HTMLElement).dataset.delta!),
+            ),
+          ),
+        );
+      body
+        .querySelectorAll(".d-rm")
+        .forEach((btn) =>
+          btn.addEventListener("click", () =>
+            removeFromCart((btn as HTMLElement).dataset.id!),
+          ),
+        );
     }
 
     function openDrawer() {
@@ -369,32 +634,18 @@ export default function Home() {
     }
 
     document
-      .getElementById("navCartBtn")!
-      .addEventListener("click", toggleDrawer);
+      .getElementById("navCartBtn")
+      ?.addEventListener("click", toggleDrawer);
     document
-      .getElementById("drawerOverlay")!
-      .addEventListener("click", toggleDrawer);
+      .getElementById("drawerOverlay")
+      ?.addEventListener("click", toggleDrawer);
     document
-      .getElementById("drawerCloseBtn")!
-      .addEventListener("click", toggleDrawer);
+      .getElementById("drawerCloseBtn")
+      ?.addEventListener("click", toggleDrawer);
 
-    document.querySelectorAll("[data-add-cart]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const el = btn as HTMLElement;
-        addToCart({
-          id: el.dataset.addCart,
-          name: el.dataset.name,
-          price: Number(el.dataset.price),
-          img: el.dataset.img,
-        });
-      });
-    });
-
-    /* ══ CHECKOUT ══ */
     document
-      .getElementById("checkoutBtn")!
-      .addEventListener("click", async () => {
+      .getElementById("checkoutBtn")
+      ?.addEventListener("click", async () => {
         if (!cart.length) return;
         const btn = document.getElementById("checkoutBtn") as HTMLButtonElement;
         btn.disabled = true;
@@ -422,7 +673,6 @@ export default function Home() {
         }
       });
 
-    /* ══ TOAST ══ */
     function showToast(msg: string) {
       const t = document.getElementById("toast")!;
       t.textContent = msg;
@@ -430,15 +680,18 @@ export default function Home() {
       setTimeout(() => t.classList.remove("show"), 2600);
     }
 
-    /* ══ KEYBOARD ══ */
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         closeProduct();
         closeDrawer();
       }
     });
+
+    /* ══ INIT ══ */
+    renderGrid();
   }, []);
 
+  /* ════════════════ JSX ════════════════ */
   return (
     <>
       <div className="cursor-dot" id="cursorDot"></div>
@@ -617,167 +870,65 @@ export default function Home() {
         </div>
       </div>
 
-      {/* NOS BOX */}
+      {/* ══ CATALOGUE INTÉGRÉ ══ */}
       <section className="boxes-section" id="boxes">
+        {/* En-tête */}
         <div className="boxes-header">
           <div className="reveal-left">
             <div className="sec-eyebrow">Nos box</div>
             <h2 className="sec-title">
-              La coiffure
+              Choisis ta
               <br />
-              que tu <em>veux.</em>
+              <em>coiffure.</em>
             </h2>
           </div>
           <p className="boxes-header-note reveal-right">
-            Tout est inclus.
+            Une box, une coiffure.
             <br />
-            Rien à chercher.
+            Tout est inclus.
           </p>
         </div>
 
-        {/* FEATURED */}
-        <div className="box-featured reveal-scale" data-product="knotless">
-          <div className="feat-img-wrap">
-            <div className="feat-badge">⭐ Best-seller</div>
-            <img
-              src="https://images.unsplash.com/photo-1614104895792-1d6cb01bce78?w=900&q=80"
-              alt="Knotless braids"
-            />
-            <div className="feat-img-gradient"></div>
-          </div>
-          <div className="feat-info">
-            <div className="feat-cat">Coiffure tressée</div>
-            <div className="feat-title">
-              Box <em>Knotless</em>
-            </div>
-            <p className="feat-desc">
-              Braids sans nœuds, légères et naturelles. Notre box la plus
-              demandée.
-            </p>
-            <div className="feat-pills">
-              <div className="pill">🧶 Mèches premium</div>
-              <div className="pill">🪮 Accessoires</div>
-              <div className="pill">💧 Huile de soin</div>
-              <div className="pill">📱 Tuto vidéo</div>
-              <div className="pill">📋 Guide illustré</div>
-              <div className="pill">🚚 Livraison offerte</div>
-            </div>
-            <div className="feat-price-row">
-              <div className="feat-price">49€</div>
-              <div className="feat-old">65€</div>
-              <div className="feat-save">−25%</div>
-              <button
-                className="btn-bord"
-                data-add-cart="knotless"
-                data-name="Box Knotless"
-                data-price="49"
-                data-img="https://images.unsplash.com/photo-1614104895792-1d6cb01bce78?w=200&q=80"
-              >
-                Ajouter au panier
-              </button>
-            </div>
+        {/* Filtres */}
+        <div className="filters-inline">
+          <span className="filter-label">Filtrer</span>
+          <button className="filter-btn active" data-filter="all">
+            Toutes <span className="filter-count">6</span>
+          </button>
+          <button className="filter-btn" data-filter="tresses">
+            Tressées <span className="filter-count">2</span>
+          </button>
+          <button className="filter-btn" data-filter="twists">
+            Twists <span className="filter-count">2</span>
+          </button>
+          <button className="filter-btn" data-filter="crochet">
+            Crochet <span className="filter-count">1</span>
+          </button>
+          <button className="filter-btn" data-filter="boho">
+            Boho <span className="filter-count">1</span>
+          </button>
+          <div
+            style={{
+              marginLeft: "auto",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <span className="filter-label" id="resultCount">
+              6 box
+            </span>
+            <select id="sortSelect" className="sort-select">
+              <option value="default">Popularité</option>
+              <option value="price-asc">Prix ↑</option>
+              <option value="price-desc">Prix ↓</option>
+              <option value="diff-asc">Plus facile</option>
+            </select>
           </div>
         </div>
 
-        {/* GRID */}
-        <div className="boxes-grid">
-          <div className="box-card reveal delay-1" data-product="braids">
-            <div className="card-img-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=80"
-                alt="Box Braids"
-              />
-              <div className="card-img-overlay"></div>
-              <div className="card-badge">Nouveau</div>
-              <div className="card-img-info">
-                <div className="card-cat">Coiffure tressée</div>
-                <div className="card-name">Box Braids</div>
-                <div className="card-sub">Classiques &amp; durables</div>
-              </div>
-            </div>
-            <div className="card-bottom">
-              <div>
-                <span className="card-price">39€</span>
-                <span className="card-price-old">52€</span>
-              </div>
-              <button
-                className="btn-sm"
-                data-add-cart="braids"
-                data-name="Box Braids"
-                data-price="39"
-                data-img="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80"
-              >
-                Commander
-              </button>
-            </div>
-          </div>
-
-          <div className="box-card reveal delay-2" data-product="twists">
-            <div className="card-img-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=600&q=80"
-                alt="Passion Twists"
-              />
-              <div className="card-img-overlay"></div>
-              <div className="card-img-info">
-                <div className="card-cat">Coiffure twistée</div>
-                <div className="card-name">Passion Twists</div>
-                <div className="card-sub">Bohème &amp; romantique</div>
-              </div>
-            </div>
-            <div className="card-bottom">
-              <div>
-                <span className="card-price">42€</span>
-                <span className="card-price-old">56€</span>
-              </div>
-              <button
-                className="btn-sm"
-                data-add-cart="twists"
-                data-name="Box Passion Twists"
-                data-price="42"
-                data-img="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80"
-              >
-                Commander
-              </button>
-            </div>
-          </div>
-
-          <div className="box-card reveal delay-3" data-product="budget">
-            <div className="card-img-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=600&q=80"
-                alt="Budget Queen"
-              />
-              <div className="card-img-overlay"></div>
-              <div
-                className="card-badge"
-                style={{ background: "var(--gold-d)" }}
-              >
-                ✦ Étudiante
-              </div>
-              <div className="card-img-info">
-                <div className="card-cat">Budget accessible</div>
-                <div className="card-name">Budget Queen</div>
-                <div className="card-sub">Qualité max, prix mini</div>
-              </div>
-            </div>
-            <div className="card-bottom">
-              <div>
-                <span className="card-price">29€</span>
-                <span className="card-price-old">39€</span>
-              </div>
-              <button
-                className="btn-sm"
-                data-add-cart="budget"
-                data-name="Budget Queen"
-                data-price="29"
-                data-img="https://images.unsplash.com/photo-1523264653568-d3d4032d1476?w=200&q=80"
-              >
-                Commander
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Grille */}
+        <div className="cat-grid" id="catGrid"></div>
       </section>
 
       <div className="divider-gold"></div>
@@ -863,24 +1014,24 @@ export default function Home() {
         <div className="reviews-grid">
           {[
             {
-              tag: "Box Knotless",
+              tag: "Knotless Braids",
               text: "J'ai réussi mes knotless du premier coup grâce au tuto. Je suis trop fière !",
               av: "A",
               name: "Aminata D.",
               city: "Paris · il y a 2 semaines",
             },
             {
-              tag: "Box Braids",
-              text: "La qualité des mèches est top. Tout est dans la box, j'ai rien eu à acheter en plus !",
-              av: "F",
-              name: "Fatou K.",
+              tag: "Crochet Braids",
+              text: "En 1h30 j'avais une coiffure de rêve. L'aiguille crochet incluse change tout !",
+              av: "B",
+              name: "Binta F.",
               city: "Lyon · il y a 1 mois",
             },
             {
-              tag: "Budget Queen",
-              text: "Étudiante avec petit budget, le résultat est vraiment beau. Le packaging est trop joli !",
-              av: "N",
-              name: "Nadia M.",
+              tag: "Boho Braids",
+              text: "La coiffure la plus belle que j'ai jamais portée. Tout le monde me demande où je l'ai apprise !",
+              av: "S",
+              name: "Safi O.",
               city: "Bordeaux · il y a 3 semaines",
             },
           ].map((r, i) => (
@@ -999,16 +1150,24 @@ export default function Home() {
             <h5>Box</h5>
             <ul>
               <li>
-                <a href="#">Box Knotless</a>
+                <span className="footer-link" data-scroll="boxes">
+                  Knotless Braids
+                </span>
               </li>
               <li>
-                <a href="#">Box Braids</a>
+                <span className="footer-link" data-scroll="boxes">
+                  Nattes avec Perles
+                </span>
               </li>
               <li>
-                <a href="#">Passion Twists</a>
+                <span className="footer-link" data-scroll="boxes">
+                  Twist Vanille
+                </span>
               </li>
               <li>
-                <a href="#">Budget Queen</a>
+                <span className="footer-link" data-scroll="boxes">
+                  Crochet Braids
+                </span>
               </li>
             </ul>
           </div>
@@ -1067,39 +1226,36 @@ export default function Home() {
             <img id="modalImg" src="" alt="" />
             <div className="modal-img-gradient"></div>
             <div className="modal-img-badge" id="modalBadge"></div>
-            <div className="modal-img-overlay-text">
-              <div style={{ display: "flex", alignItems: "baseline" }}>
-                <span className="modal-img-price" id="modalImgPrice"></span>
-                <span className="modal-img-old" id="modalImgOld"></span>
-                <span className="modal-img-save" id="modalImgSave"></span>
+            <div className="modal-price-overlay">
+              <div className="modal-price-big">
+                <span id="modalPriceBig"></span>
+                <span className="old" id="modalOldBig"></span>
+                <span className="save" id="modalSaveBig"></span>
               </div>
             </div>
           </div>
           <div className="modal-content-side">
             <div className="modal-eyebrow" id="modalCat"></div>
             <h2 className="modal-title" id="modalTitle"></h2>
-            <div className="modal-subtitle" id="modalSubtitle"></div>
-            <div className="modal-stars">★★★★★</div>
-            <div className="modal-reviews-count" id="modalReviews"></div>
+            <div className="modal-subtitle" id="modalSub"></div>
+            <div className="modal-rating">
+              <div className="modal-stars" id="modalStars"></div>
+              <span className="modal-score" id="modalScore"></span>
+              <span className="modal-rev-count" id="modalRevCount"></span>
+            </div>
+            <div className="modal-meta" id="modalMeta"></div>
             <p className="modal-desc" id="modalDesc"></p>
             <div className="modal-includes-title">Contenu de la box</div>
             <div className="modal-includes-grid" id="modalIncludes"></div>
+            <div className="modal-reviews-label">Avis clientes</div>
+            <div className="modal-revs-list" id="modalRevs"></div>
             <div className="modal-actions">
-              <div className="modal-price-row">
-                <div className="modal-price-main" id="modalPriceMain"></div>
-                <div className="modal-price-old" id="modalPriceOld"></div>
-                <div className="modal-save-tag" id="modalSaveTag"></div>
-              </div>
               <div className="modal-btn-row">
                 <button className="btn-modal-add" id="modalAddBtn">
                   <span id="modalAddIcon">🛒</span>
                   <span id="modalAddText">Ajouter au panier</span>
                 </button>
-                <button
-                  className="btn-modal-wish"
-                  id="modalWishBtn"
-                  title="Favoris"
-                >
+                <button className="btn-modal-wish" id="modalWishBtn">
                   ♡
                 </button>
               </div>
