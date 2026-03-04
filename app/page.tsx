@@ -90,7 +90,7 @@ const BOXES = [
     duration: "2–4h",
     rating: 4.8,
     ratingCount: 89,
-    img: "../images/twist vanille.png",
+    img: "./images/twist vanille.png",
     imgCart: "../images/twist vanille.png",
     desc: "Le twist vanille, c'est le côté romantique et naturel de la coiffure afro. Rapide à réaliser, cette coiffure met en valeur la texture naturelle de tes cheveux.",
     includes: [
