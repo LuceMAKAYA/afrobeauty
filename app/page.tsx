@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 
-import { CONFIG, LENGTHS, PRICES, COLORS, ACC, BOXES, type Box, type ShipChoice, accValue, eur, shipCostFor, SHIP_LABELS } from "@/lib/catalog";
+import { CONFIG, LENGTHS, PRICES, COLORS, ACC, BOXES, type Box, type ShipChoice, accValue, eur, shipCostFor, SHIP_LABELS, boxPrice, boxKey, resolveItem } from "@/lib/catalog";
 
 const CATS = [
   { id: "all", label: "Toutes" },
@@ -247,26 +247,30 @@ export default function Home() {
 
     /* ══ MODAL ══ */
     let currentProduct: Box | null = null;
-    const sel = { formula: "complete", length: "mi", color: "1B" };
+    const sel: { formula: string; length: string; color: string; removed: string[] } = { formula: "complete", length: "mi", color: "1B", removed: [] };
 
     function modalPrice() {
-      return PRICES[sel.formula][sel.length];
+      return boxPrice(currentProduct!, sel.formula, sel.length, sel.removed);
     }
 
     function renderModalOptions() {
       const p = currentProduct!;
       const L = LENGTHS.find((l) => l.id === sel.length)!;
       const price = modalPrice();
+      const custom = sel.formula === "complete" && sel.removed.length > 0;
       const saving = PRICES.meches[sel.length] + accValue(p.acc) - PRICES.complete[sel.length];
       document.getElementById("modalPriceBig")!.textContent = eur(price);
-      document.getElementById("modalSaveBig")!.textContent = sel.formula === "complete" ? "−" + eur(saving) : "";
+      document.getElementById("modalSaveBig")!.textContent =
+        sel.formula === "complete" && !custom && saving > 0 ? "−" + eur(saving) : "";
       const opts = document.getElementById("modalOptions")!;
       opts.innerHTML = `
         <div class="opt-group">
           <div class="opt-label">Formule</div>
           <div class="opt-seg two">
             <button class="opt-btn${sel.formula === "meches" ? " on" : ""}" data-k="formula" data-v="meches">Mèches seules<small>${eur(PRICES.meches[sel.length])}</small></button>
-            <button class="opt-btn${sel.formula === "complete" ? " on" : ""}" data-k="formula" data-v="complete">Box complète<small>${eur(PRICES.complete[sel.length])} · tu économises ${eur(saving)}</small></button>
+            <button class="opt-btn${sel.formula === "complete" ? " on" : ""}" data-k="formula" data-v="complete">${custom ? "Box custom" : "Box complète"}<small>${
+              custom ? eur(price) + " · " + sel.removed.length + " retiré" + (sel.removed.length > 1 ? "s" : "") : eur(PRICES.complete[sel.length]) + (saving > 0 ? " · tu économises " + eur(saving) : "")
+            }</small></button>
           </div>
         </div>
         <div class="opt-group">
@@ -280,22 +284,48 @@ export default function Home() {
       opts.querySelectorAll("[data-k]").forEach((b) =>
         b.addEventListener("click", () => {
           const el = b as HTMLElement;
-          (sel as Record<string, string>)[el.dataset.k!] = el.dataset.v!;
+          const k = el.dataset.k!;
+          if (k === "formula") {
+            sel.formula = el.dataset.v!;
+            sel.removed = [];
+          } else (sel as unknown as Record<string, string>)[k] = el.dataset.v!;
           renderModalOptions();
         }),
       );
-      const items = [{ icon: "🧶", label: `${L.packs} paquets de mèches ${p.meches} · couleur ${sel.color}`, off: false }].concat(
-        p.acc.map((a) => ({ icon: ACC[a].icon, label: ACC[a].name, off: sel.formula === "meches" })),
+      const accOn = sel.formula === "complete";
+      const inc = document.getElementById("modalIncludes")!;
+      inc.innerHTML =
+        `<div class="cat-m-inc"><span class="cat-m-inc-icon">🧶</span><span>${L.packs} paquets de mèches ${p.meches} · couleur ${sel.color}</span></div>` +
+        p.acc
+          .map((a) => {
+            const removed = !accOn || sel.removed.includes(a);
+            return `<button class="cat-m-inc inc-toggle${removed ? " is-off" : ""}" data-toggle="${a}" ${accOn ? "" : "disabled"} aria-pressed="${!removed}">
+              <span class="cat-m-inc-icon">${ACC[a].icon}</span><span class="inc-name">${ACC[a].name}</span>
+              <span class="inc-check">${removed ? "＋" : "✓"}</span></button>`;
+          })
+          .join("");
+      const hint = document.getElementById("modalIncHint")!;
+      hint.textContent = accOn
+        ? "Touche un accessoire pour le retirer, le prix baisse."
+        : "Choisis « Box complète » pour ajouter les accessoires.";
+      inc.querySelectorAll("[data-toggle]").forEach((b) =>
+        b.addEventListener("click", () => {
+          const a = (b as HTMLElement).dataset.toggle!;
+          sel.removed = sel.removed.includes(a) ? sel.removed.filter((x) => x !== a) : [...sel.removed, a];
+          if (sel.removed.length === p.acc.length) {
+            sel.formula = "meches";
+            sel.removed = [];
+          }
+          renderModalOptions();
+        }),
       );
-      document.getElementById("modalIncludes")!.innerHTML = items
-        .map((inc) => `<div class="cat-m-inc${inc.off ? " is-off" : ""}"><span class="cat-m-inc-icon">${inc.icon}</span><span>${inc.label}</span></div>`)
-        .join("");
     }
 
     function openProduct(id: string) {
       const p = BOXES.find((b) => b.id === id);
       if (!p || p.soon) return;
       currentProduct = p;
+      sel.removed = [];
 
       const img = document.getElementById("modalImg") as HTMLImageElement;
       img.src = p.img;
@@ -338,14 +368,10 @@ export default function Home() {
     document.getElementById("modalAddBtn")?.addEventListener("click", () => {
       if (!currentProduct) return;
       const p = currentProduct;
-      const L = LENGTHS.find((l) => l.id === sel.length)!;
-      addToCart({
-        key: `box-${p.id}-${sel.formula}-${sel.length}-${sel.color}`,
-        name: `${sel.formula === "complete" ? "Box complète" : "Box mèches"} ${p.name}`,
-        detail: `${L.label} (${L.packs} paquets) · couleur ${sel.color}`,
-        price: modalPrice(),
-        img: p.img,
-      });
+      const key = boxKey(p, sel.formula, sel.length, sel.color, sel.removed);
+      const item = resolveItem(key);
+      if (!item) return;
+      addToCart({ key, ...item });
       document.getElementById("modalAddBtn")!.classList.add("added");
       document.getElementById("modalAddIcon")!.textContent = "✓";
       document.getElementById("modalAddText")!.textContent = "Ajouté !";
@@ -636,7 +662,7 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-stats">
-          <div className="hstat"><div><div className="hstat-num">dès 18€</div><div className="hstat-lbl">Box mèches</div></div></div>
+          <div className="hstat"><div><div className="hstat-num">dès 15€</div><div className="hstat-lbl">Box mèches</div></div></div>
           <div className="hstat"><div><div className="hstat-num">Jour J</div><div className="hstat-lbl">Commande avant 14h</div></div></div>
           <div className="hstat"><div><div className="hstat-num">0€</div><div className="hstat-lbl">Livraison dès 40€</div></div></div>
         </div>
@@ -897,6 +923,7 @@ export default function Home() {
             <p className="modal-desc" id="modalDesc"></p>
             <div id="modalOptions"></div>
             <div className="modal-includes-title">Dans ta box</div>
+            <p className="inc-hint" id="modalIncHint"></p>
             <div className="modal-includes-grid" id="modalIncludes"></div>
             <div className="modal-actions">
               <div className="modal-btn-row">

@@ -16,8 +16,8 @@ export const LENGTHS = [
 ];
 
 export const PRICES: Record<string, Record<string, number>> = {
-  meches: { courte: 18, mi: 25, longue: 32 },
-  complete: { courte: 30, mi: 37, longue: 44 },
+  meches: { courte: 15, mi: 20, longue: 25 },
+  complete: { courte: 30, mi: 35, longue: 42 },
 };
 
 export const COLORS = [
@@ -165,6 +165,38 @@ export const eur = (n: number) =>
 
 export const accValue = (ids: string[]) => ids.reduce((s, id) => s + ACC[id].price, 0);
 
+/** Part du prix d'un accessoire déduite quand on le retire d'une box complète (box custom). */
+export const CUSTOM_DEDUCTION = 0.7;
+
+/**
+ * Prix d'une box.
+ * - mèches seules : prix fixe
+ * - complète : prix fixe
+ * - custom (complète avec des accessoires retirés) : prix complète − 70 % du prix de chaque accessoire retiré,
+ *   arrondi à 0,50 €, jamais moins que la box mèches. Si tout est retiré, c'est une box mèches.
+ */
+export function boxPrice(box: Box, formula: string, length: string, removed: string[] = []) {
+  const meches = PRICES.meches[length];
+  if (formula === "meches") return meches;
+  const kept = box.acc.filter((a) => !removed.includes(a));
+  if (!kept.length) return meches;
+  const off = accValue(box.acc.filter((a) => removed.includes(a))) * CUSTOM_DEDUCTION;
+  return Math.max(meches, Math.round((PRICES.complete[length] - off) * 2) / 2);
+}
+
+/** Nom de la formule affiché au client. */
+export function formulaName(box: Box, formula: string, removed: string[] = []) {
+  if (formula === "meches" || box.acc.every((a) => removed.includes(a))) return "Box mèches";
+  return removed.length ? "Box custom" : "Box complète";
+}
+
+/** Clé panier d'une box : box-<id>-<formule>-<longueur>-<couleur>[~<accessoires retirés séparés par des points>] */
+export function boxKey(box: Box, formula: string, length: string, color: string, removed: string[] = []) {
+  const r = formula === "meches" ? [] : box.acc.filter((a) => removed.includes(a));
+  if (formula !== "meches" && r.length === box.acc.length) return `box-${box.id}-meches-${length}-${color}`;
+  return `box-${box.id}-${formula}-${length}-${color}` + (r.length ? `~${r.join(".")}` : "");
+}
+
 export type ShipChoice = "jour" | "lendemain" | "retrait";
 export const SHIP_LABELS: Record<ShipChoice, string> = {
   jour: "Le jour même",
@@ -174,7 +206,6 @@ export const SHIP_LABELS: Record<ShipChoice, string> = {
 
 /** Retrouve un article à partir de sa clé (box-…, acc-…, pack-…). Sert aussi au serveur pour recalculer les prix. */
 export function resolveItem(key: string): { name: string; detail: string; price: number; img: string } | null {
-  const parts = key.split("-");
   if (key.startsWith("acc-")) {
     const a = ACC[key.slice(4)];
     return a ? { name: a.name, detail: "Accessoire", price: a.price, img: "" } : null;
@@ -184,18 +215,24 @@ export function resolveItem(key: string): { name: string; detail: string; price:
     return b ? { name: "Pack accessoires " + b.name, detail: b.acc.map((a) => ACC[a].name).join(", "), price: b.packPrice, img: b.img } : null;
   }
   if (key.startsWith("box-")) {
-    // box-<id>-<formule>-<longueur>-<couleur> ; l'id peut contenir des tirets
+    // box-<id>-<formule>-<longueur>-<couleur>[~retirés] ; l'id peut contenir des tirets
+    const [base, rem = ""] = key.split("~");
+    const parts = base.split("-");
     const color = parts[parts.length - 1];
     const length = parts[parts.length - 2];
     const formula = parts[parts.length - 3];
     const id = parts.slice(1, parts.length - 3).join("-");
     const b = BOXES.find((x) => x.id === id && !x.soon);
     const L = LENGTHS.find((l) => l.id === length);
+    const removed = rem ? rem.split(".") : [];
     if (!b || !L || !PRICES[formula] || !COLORS.some((c) => c.id === color)) return null;
+    if (removed.some((r) => !b.acc.includes(r)) || (formula === "meches" && removed.length)) return null;
     return {
-      name: `${formula === "complete" ? "Box complète" : "Box mèches"} ${b.name}`,
-      detail: `${L.label} (${L.packs} paquets) · couleur ${color}`,
-      price: PRICES[formula][length],
+      name: `${formulaName(b, formula, removed)} ${b.name}`,
+      detail:
+        `${L.label} (${L.packs} paquets) · couleur ${color}` +
+        (removed.length ? ` · sans ${removed.map((r) => ACC[r].name.toLowerCase()).join(", ")}` : ""),
+      price: boxPrice(b, formula, length, removed),
       img: b.img,
     };
   }

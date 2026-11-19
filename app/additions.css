@@ -293,3 +293,18 @@
   .modal-content-side { overflow: visible; }
   .modal-actions { bottom: -28px; box-shadow: 0 -10px 20px var(--bg-card); }
 }
+
+/* box custom : accessoires à retirer */
+.inc-hint { font-size: 11px; color: var(--text-2); margin: -6px 0 10px; line-height: 1.5; }
+button.inc-toggle {
+  width: 100%;
+  text-align: left;
+  font-family: "Montserrat", sans-serif;
+  cursor: pointer;
+  border-color: var(--gold);
+}
+button.inc-toggle .inc-name { flex: 1; }
+button.inc-toggle .inc-check { color: var(--gold); font-weight: 700; }
+button.inc-toggle.is-off { border-color: var(--border); text-decoration: none; }
+button.inc-toggle.is-off .inc-name { text-decoration: line-through; }
+button.inc-toggle:disabled { cursor: not-allowed; }
