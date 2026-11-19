@@ -1,7 +1,68 @@
 "use client";
 import { useEffect } from "react";
 
-const BOXES = [
+/* ═════════════ RÉGLAGES (à modifier ici) ═════════════ */
+const CONFIG = {
+  whatsapp: "33602567474", // numéro WhatsApp au format international, sans + ni espaces
+  cutoffHour: 14, // heure limite pour la livraison le jour même
+  freeFrom: 40, // livraison offerte à partir de ce montant (€)
+  ship: { jour: 3.9, lendemain: 1.9, retrait: 0 },
+  // Paiement par carte Stripe : mets NEXT_PUBLIC_STRIPE_ENABLED=true sur Vercel
+  // une fois tes clés Stripe ajoutées. Sinon seule la commande WhatsApp s'affiche.
+  stripeEnabled: process.env.NEXT_PUBLIC_STRIPE_ENABLED === "true",
+};
+
+const LENGTHS = [
+  { id: "courte", label: "Courte", packs: 4 },
+  { id: "mi", label: "Mi-longue", packs: 6 },
+  { id: "longue", label: "Longue", packs: 8 },
+];
+
+const PRICES: Record<string, Record<string, number>> = {
+  meches: { courte: 18, mi: 25, longue: 32 },
+  complete: { courte: 30, mi: 37, longue: 44 },
+};
+
+const COLORS = [
+  { id: "1B", label: "Noir naturel", hex: "#1b1612" },
+  { id: "2", label: "Brun foncé", hex: "#3b2618" },
+  { id: "4", label: "Châtain", hex: "#5e3a22" },
+  { id: "27", label: "Miel", hex: "#b9772f" },
+  { id: "30", label: "Cuivré", hex: "#8f4421" },
+  { id: "613", label: "Blond", hex: "#e6cf96" },
+];
+
+const ACC: Record<string, { name: string; price: number; icon: string; desc: string }> = {
+  perles: { name: "Lot de perles (50)", price: 3, icon: "✨", desc: "Perles dorées et colorées pour finir tes nattes." },
+  enfile: { name: "Enfile-perles", price: 2, icon: "🪡", desc: "Pour passer les perles en quelques secondes." },
+  aiguille: { name: "Aiguille crochet", price: 2, icon: "🪝", desc: "Aiguille à clapet pour poser tes mèches crochet." },
+  peigne: { name: "Peigne queue de rat", price: 2.5, icon: "🪮", desc: "Pour des raies nettes et des sections propres." },
+  brosse: { name: "Brosse edges", price: 2.5, icon: "🖌️", desc: "Double tête, pour des edges bien dessinés." },
+  gel: { name: "Gel edges", price: 5, icon: "🫙", desc: "Tenue forte sans effet carton." },
+  huile: { name: "Huile cuir chevelu", price: 6, icon: "💧", desc: "Apaise les démangeaisons sous les tresses." },
+  mousse: { name: "Mousse fixante", price: 7, icon: "🫧", desc: "Lisse les frisottis et scelle les tresses." },
+  bonnet: { name: "Bonnet satin", price: 7, icon: "🧢", desc: "Protège ta coiffure la nuit pour qu'elle dure plus longtemps." },
+};
+
+type Box = {
+  id: string;
+  name: string;
+  category: string;
+  catLabel: string;
+  subtitle: string;
+  badge: string | null;
+  badgeClass: string;
+  diff: number;
+  duration: string;
+  img: string;
+  desc: string;
+  meches: string;
+  acc: string[];
+  packPrice: number;
+  soon?: boolean;
+};
+
+const BOXES: Box[] = [
   {
     id: "knotless",
     name: "Knotless Braids",
@@ -10,67 +71,13 @@ const BOXES = [
     subtitle: "Légères, naturelles, sans nœuds",
     badge: "⭐ Best-seller",
     badgeClass: "badge-pop",
-    price: 49,
-    oldPrice: 65,
     diff: 2,
     duration: "4–6h",
-    rating: 4.9,
-    ratingCount: 142,
     img: "/boxes/knoletss.jpg",
-    imgCart: "/boxes/knoletss.jpg",
-    desc: "La coiffure tendance par excellence. Légères sur le cuir chevelu, sans nœud à la racine — elles durent jusqu'à 8 semaines et s'adaptent à tous les styles.",
-    includes: [
-      { icon: "🧶", label: "Mèches knotless premium (3 paquets)" },
-      { icon: "🪮", label: "Peigne à queue professionnel" },
-      { icon: "🔴", label: "Élastiques noirs assortis (×50)" },
-      { icon: "💧", label: "Huile de soin pour les pointes" },
-      { icon: "📋", label: "Guide illustré étape par étape" },
-      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-    ],
-    reviews: [
-      {
-        text: "Mes knotless sont impeccables au premier essai ! Le guide est tellement clair.",
-        author: "Aminata D. · Paris",
-      },
-      {
-        text: "La qualité des mèches est vraiment top, elles tiennent super bien.",
-        author: "Koné S. · Lyon",
-      },
-    ],
-  },
-  {
-    id: "french-curls",
-    name: "French Curls",
-    category: "tresses",
-    catLabel: "Coiffure tressée",
-    subtitle: "Élégantes & personnalisables",
-    badge: "Nouveau",
-    badgeClass: "badge-new",
-    price: 44,
-    oldPrice: 58,
-    diff: 2,
-    duration: "6h–8h",
-    rating: 4.8,
-    ratingCount: 67,
-    img: "/boxes/french.jpg",
-    imgCart: "/boxes/french.jpg",
-    desc: "Les French Curls sont une coiffure élégante et personnalisable. Elles mettent en valeur la texture naturelle de tes cheveux.",
-    includes: [
-      { icon: "🧶", label: "Mèches lisses premium (3 paquets)" },
-      { icon: "🪮", label: "Peigne à queue + pince à cheveux " },
-      { icon: "📋", label: "Guide illustré étape par étape" },
-      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-    ],
-    reviews: [
-      {
-        text: "Les perles sont tellement jolies ! J'ai eu plein de compliments.",
-        author: "Fatoumata B. · Bordeaux",
-      },
-      {
-        text: "Super facile à faire avec le tuto. Les mèches sont de très bonne qualité.",
-        author: "Mariama C. · Marseille",
-      },
-    ],
+    desc: "La coiffure tendance par excellence. Légères sur le cuir chevelu, sans nœud à la racine : elles durent jusqu'à 8 semaines et s'adaptent à tous les styles.",
+    meches: "pré-étirées",
+    acc: ["peigne", "brosse", "gel", "mousse", "bonnet"],
+    packPrice: 15,
   },
   {
     id: "nattes-perles",
@@ -80,105 +87,13 @@ const BOXES = [
     subtitle: "Élégantes & personnalisables",
     badge: "Nouveau",
     badgeClass: "badge-new",
-    price: 44,
-    oldPrice: 58,
     diff: 2,
     duration: "3–5h",
-    rating: 4.8,
-    ratingCount: 67,
     img: "/boxes/natte.jpg",
-    imgCart: "/boxes/natte.jpg",
-    desc: "Des nattes classiques sublimées par des perles dorées, argentées ou colorées. La box inclut une sélection de perles assorties pour personnaliser entièrement ta coiffure.",
-    includes: [
-      { icon: "🧶", label: "Mèches lisses premium (3 paquets)" },
-      { icon: "🪮", label: "Peigne à queue + crochet" },
-      { icon: "✨", label: "Set de perles assorties" },
-      { icon: "🔴", label: "Élastiques fins transparents" },
-      { icon: "📋", label: "Guide illustré étape par étape" },
-      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-    ],
-    reviews: [
-      {
-        text: "Les perles sont tellement jolies ! J'ai eu plein de compliments.",
-        author: "Fatoumata B. · Bordeaux",
-      },
-      {
-        text: "Super facile à faire avec le tuto. Les mèches sont de très bonne qualité.",
-        author: "Mariama C. · Marseille",
-      },
-    ],
-  },
-  {
-    id: "twist-vanille",
-    name: "Twist Vanille",
-    category: "twists",
-    catLabel: "Coiffure twistée",
-    subtitle: "Douceur & élégance naturelle",
-    badge: "Tendance",
-    badgeClass: "badge-tend",
-    price: 42,
-    oldPrice: 56,
-    diff: 1,
-    duration: "2–4h",
-    rating: 4.8,
-    ratingCount: 89,
-    img: "/boxes/twist vanille.jpg",
-    imgCart: "/boxes/twist vanille.jpg",
-    desc: "Le twist vanille, c'est le côté romantique et naturel de la coiffure afro. Rapide à réaliser, cette coiffure met en valeur la texture naturelle de tes cheveux.",
-    includes: [
-      { icon: "🧶", label: "Mèches twist premium (4 paquets)" },
-      { icon: "💧", label: "Crème hydratante coiffante" },
-      { icon: "🪮", label: "Peigne à dents larges" },
-      { icon: "✨", label: "Huile de finition brillance" },
-      { icon: "📋", label: "Guide illustré étape par étape" },
-      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-    ],
-    reviews: [
-      {
-        text: "Mes twists vanille ont tenu 3 semaines. C'est ma coiffure préférée maintenant !",
-        author: "Nadia M. · Bordeaux",
-      },
-      {
-        text: "Parfait pour débuter. La crème coiffante est excellente.",
-        author: "Aïcha T. · Nantes",
-      },
-    ],
-  },
-  {
-    id: "passion-twists",
-    name: "Passion Twists",
-    category: "twists",
-    catLabel: "Coiffure twistée",
-    subtitle: "Look bohème & romantique",
-    badge: null,
-    badgeClass: "",
-    price: 39,
-    oldPrice: 52,
-    diff: 2,
-    duration: "3–5h",
-    rating: 4.7,
-    ratingCount: 63,
-    img: "./boxes/twist.jpg",
-    imgCart: "./images/twist.jpg",
-    desc: "Les passion twists ont envahi TikTok et Instagram. Leur texture frisée crée un effet bohème irrésistible, parfaites pour toutes les occasions.",
-    includes: [
-      { icon: "🧶", label: "Mèches frisées passion" },
-      { icon: "🪮", label: "Peigne à queue + pince a cheveux " },
-      { icon: "💧", label: "Mousse coiffante légère" },
-      { icon: "✨", label: "Huile brillance finition" },
-      { icon: "📋", label: "Guide illustré étape par étape" },
-      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-    ],
-    reviews: [
-      {
-        text: "Le look bohème que je voulais ! Tellement de compliments en une semaine.",
-        author: "Inès K. · Paris",
-      },
-      {
-        text: "Les mèches sont douces et naturelles, super résultat.",
-        author: "Rokia D. · Toulouse",
-      },
-    ],
+    desc: "Des nattes classiques sublimées par des perles dorées ou colorées. La box complète inclut les perles et l'enfile-perles pour personnaliser entièrement ta coiffure.",
+    meches: "pré-étirées",
+    acc: ["perles", "enfile", "peigne", "brosse", "gel", "mousse"],
+    packPrice: 15,
   },
   {
     id: "crochet",
@@ -188,76 +103,108 @@ const BOXES = [
     subtitle: "Rapide, volumineuse & protectrice",
     badge: "⚡ Rapide",
     badgeClass: "badge-excl",
-    price: 46,
-    oldPrice: 60,
     diff: 1,
     duration: "1–2h",
-    rating: 4.9,
-    ratingCount: 114,
     img: "/boxes/crochet.jpg",
-    imgCart: "/boxes/crochet.jpg",
-    desc: "La technique crochet est parfaite si tu veux un résultat rapide et impressionnant. En 1 à 2h seulement, tu obtiens une coiffure volumineuse et protectrice qui dure des semaines.",
-    includes: [
-      { icon: "🧶", label: "Mèches crochet " },
-      { icon: "🪡", label: "Crochet" },
-      { icon: "🔴", label: "Epingles et bandeau" },
-      { icon: "💧", label: "Spray hydratant protection" },
-      { icon: "📋", label: "Guide illustré étape par étape" },
-      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-    ],
-    reviews: [
-      {
-        text: "En 90 minutes chrono ! Je n'arrive pas à croire que c'est aussi rapide et beau.",
-        author: "Binta F. · Strasbourg",
-      },
-      {
-        text: "L'aiguille crochet incluse est de très bonne qualité, ça change tout.",
-        author: "Djénéba M. · Lille",
-      },
-    ],
+    desc: "La technique crochet est parfaite si tu veux un résultat rapide et impressionnant. En 1 à 2h, tu obtiens une coiffure volumineuse et protectrice qui dure des semaines.",
+    meches: "pré-bouclées",
+    acc: ["aiguille", "peigne", "brosse", "gel", "huile", "bonnet"],
+    packPrice: 15,
+  },
+  {
+    id: "french-curls",
+    name: "French Curls",
+    category: "tresses",
+    catLabel: "Coiffure tressée",
+    subtitle: "Élégantes & bouclées",
+    badge: "Bientôt",
+    badgeClass: "badge-new",
+    diff: 2,
+    duration: "6–8h",
+    img: "/boxes/french.jpg",
+    desc: "Bientôt disponible.",
+    meches: "bouclées",
+    acc: [],
+    packPrice: 0,
+    soon: true,
+  },
+  {
+    id: "twist-vanille",
+    name: "Twist Vanille",
+    category: "twists",
+    catLabel: "Coiffure twistée",
+    subtitle: "Douceur & élégance naturelle",
+    badge: "Bientôt",
+    badgeClass: "badge-tend",
+    diff: 1,
+    duration: "2–4h",
+    img: "/boxes/twist%20vanille.jpg",
+    desc: "Bientôt disponible.",
+    meches: "twist",
+    acc: [],
+    packPrice: 0,
+    soon: true,
   },
   {
     id: "boho-braids",
     name: "Boho Braids",
     category: "boho",
     catLabel: "Style Boho",
-    subtitle: "Sauvage, libre & romantique",
-    badge: "✦ Exclusif",
+    subtitle: "Libre & romantique",
+    badge: "Bientôt",
     badgeClass: "badge-excl",
-    price: 52,
-    oldPrice: 68,
     diff: 3,
     duration: "5–8h",
-    rating: 5.0,
-    ratingCount: 38,
-    img: "/boxes/braid 1.jpg",
-    imgCart: "/boxes/braid 1.jpg",
-    desc: "Les boho braids combinent des tresses classiques avec des mèches lâches frisées qui s'échappent pour un rendu romantique et sauvage. La coiffure la plus photographiée de notre collection.",
-    includes: [
-      { icon: "🧶", label: "Mèches braids" },
-      { icon: "🌿", label: "Mèches boho frisées (2 paquets)" },
-      { icon: "🪮", label: "Peigne à queue + gel red" },
-      { icon: "💧", label: "Sérum anti-frizz finition" },
-      { icon: "📋", label: "Guide illustré étape par étape" },
-      { icon: "📱", label: "QR code · Tuto vidéo exclusif" },
-    ],
-    reviews: [
-      {
-        text: "La coiffure la plus belle que j'ai jamais portée. Tout le monde me demande où je l'ai apprise !",
-        author: "Safi O. · Paris",
-      },
-      {
-        text: "Un peu plus long à faire mais le résultat vaut VRAIMENT le coup.",
-        author: "Djeneba R. · Lyon",
-      },
-    ],
+    img: "/boxes/braid%201.jpg",
+    desc: "Bientôt disponible.",
+    meches: "boho",
+    acc: [],
+    packPrice: 0,
+    soon: true,
   },
 ];
 
+const CATS = [
+  { id: "all", label: "Toutes" },
+  { id: "tresses", label: "Tressées" },
+  { id: "crochet", label: "Crochet" },
+  { id: "twists", label: "Twists" },
+  { id: "boho", label: "Boho" },
+];
+
+const eur = (n: number) =>
+  n.toLocaleString("fr-FR", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + "€";
+const esc = (s: string) =>
+  String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
+const accValue = (ids: string[]) => ids.reduce((s, id) => s + ACC[id].price, 0);
+
+function Logo({ id, size }: { id: string; size: number }) {
+  return (
+    <svg viewBox="0 0 34 34" fill="none" width={size} height={size} aria-hidden="true">
+      <defs>
+        <linearGradient id={id} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#E8C97A" />
+          <stop offset="100%" stopColor="#8B6914" />
+        </linearGradient>
+      </defs>
+      <line x1="17" y1="3" x2="17" y2="31" stroke={`url(#${id})`} strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M5 31 L17 3" stroke={`url(#${id})`} strokeWidth="2.2" strokeLinecap="round" />
+      <line x1="8" y1="21" x2="17" y2="21" stroke={`url(#${id})`} strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M17 3 Q29 3 29 9 Q29 17 17 17" stroke={`url(#${id})`} strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M17 17 Q31 17 31 24 Q31 31 17 31" stroke={`url(#${id})`} strokeWidth="2" strokeLinecap="round" fill="none" />
+      <circle cx="17" cy="3" r="2.2" fill="#E8C97A" />
+      <circle cx="17" cy="31" r="2.2" fill="#E8C97A" />
+    </svg>
+  );
+}
+
 export default function Home() {
   useEffect(() => {
-    /* ══ THÈME ══ */
-    let theme = localStorage.getItem("abTheme") || "dark";
+    /* ══ THÈME (clair par défaut) ══ */
+    let theme = "light";
+    try {
+      theme = localStorage.getItem("abTheme") || "light";
+    } catch {}
     document.documentElement.setAttribute("data-theme", theme);
     syncThemeIcon();
     function syncThemeIcon() {
@@ -267,7 +214,9 @@ export default function Home() {
     document.getElementById("themeToggle")?.addEventListener("click", () => {
       theme = theme === "dark" ? "light" : "dark";
       document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem("abTheme", theme);
+      try {
+        localStorage.setItem("abTheme", theme);
+      } catch {}
       syncThemeIcon();
     });
 
@@ -299,9 +248,7 @@ export default function Home() {
       },
       { threshold: 0.08, rootMargin: "0px 0px -30px 0px" },
     );
-    document
-      .querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale")
-      .forEach((el) => revObs.observe(el));
+    document.querySelectorAll(".reveal,.reveal-left,.reveal-right,.reveal-scale").forEach((el) => revObs.observe(el));
 
     /* ══ PARALLAX + NAV SHADOW ══ */
     const heroBg = document.querySelector(".hero-bg-img") as HTMLElement;
@@ -309,11 +256,9 @@ export default function Home() {
       "scroll",
       () => {
         const s = window.scrollY;
-        if (s < window.innerHeight && heroBg)
-          heroBg.style.transform = `translateY(${s * 0.3}px)`;
+        if (s < window.innerHeight && heroBg) heroBg.style.transform = `translateY(${s * 0.3}px)`;
         const nav = document.querySelector("nav") as HTMLElement;
-        if (nav)
-          nav.style.boxShadow = s > 60 ? "0 8px 40px rgba(0,0,0,.3)" : "none";
+        if (nav) nav.style.boxShadow = s > 60 ? "0 8px 40px rgba(0,0,0,.15)" : "none";
       },
       { passive: true },
     );
@@ -321,39 +266,34 @@ export default function Home() {
     /* ══ SCROLL LINKS ══ */
     document.querySelectorAll("[data-scroll]").forEach((el) => {
       el.addEventListener("click", () => {
-        document
-          .getElementById((el as HTMLElement).dataset.scroll!)
-          ?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById((el as HTMLElement).dataset.scroll!)?.scrollIntoView({ behavior: "smooth" });
       });
     });
 
     /* ══ FILTRES CATALOGUE ══ */
     let activeFilter = "all";
-    document.querySelectorAll(".filter-btn").forEach((btn) => {
+    const filtersEl = document.getElementById("filters")!;
+    filtersEl.innerHTML = CATS.map((c) => {
+      const n = c.id === "all" ? BOXES.length : BOXES.filter((b) => b.category === c.id).length;
+      return `<button class="filter-btn${c.id === "all" ? " active" : ""}" data-filter="${c.id}">${c.label} <span class="filter-count">${n}</span></button>`;
+    }).join("");
+    filtersEl.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        document
-          .querySelectorAll(".filter-btn")
-          .forEach((b) => b.classList.remove("active"));
+        filtersEl.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         activeFilter = (btn as HTMLElement).dataset.filter || "all";
         renderGrid();
       });
     });
-    document
-      .getElementById("sortSelect")
-      ?.addEventListener("change", renderGrid);
+    document.getElementById("sortSelect")?.addEventListener("change", renderGrid);
 
     /* ══ RENDER GRILLE ══ */
+    const minPrice = PRICES.meches.courte;
     function getFiltered() {
-      let boxes =
-        activeFilter === "all"
-          ? [...BOXES]
-          : BOXES.filter((b) => b.category === activeFilter);
-      const sort = (document.getElementById("sortSelect") as HTMLSelectElement)
-        ?.value;
-      if (sort === "price-asc") boxes.sort((a, b) => a.price - b.price);
-      if (sort === "price-desc") boxes.sort((a, b) => b.price - a.price);
+      let boxes = activeFilter === "all" ? [...BOXES] : BOXES.filter((b) => b.category === activeFilter);
+      const sort = (document.getElementById("sortSelect") as HTMLSelectElement)?.value;
       if (sort === "diff-asc") boxes.sort((a, b) => a.diff - b.diff);
+      boxes.sort((a, b) => Number(!!a.soon) - Number(!!b.soon));
       return boxes;
     }
 
@@ -361,24 +301,15 @@ export default function Home() {
       const boxes = getFiltered();
       const grid = document.getElementById("catGrid")!;
       const cnt = document.getElementById("resultCount");
-      if (cnt)
-        cnt.textContent =
-          boxes.length + " box disponible" + (boxes.length > 1 ? "s" : "");
+      const avail = boxes.filter((b) => !b.soon).length;
+      if (cnt) cnt.textContent = avail + " box disponible" + (avail > 1 ? "s" : "");
 
-      const pct = (b: any) => Math.round((1 - b.price / b.oldPrice) * 100);
-      const stars = (r: number) =>
-        "★".repeat(Math.round(r)) + "☆".repeat(5 - Math.round(r));
-      const dots = (d: number) =>
-        [1, 2, 3]
-          .map(
-            (i) => `<div class="cc-diff-dot${i <= d ? " filled" : ""}"></div>`,
-          )
-          .join("");
+      const dots = (d: number) => [1, 2, 3].map((i) => `<div class="cc-diff-dot${i <= d ? " filled" : ""}"></div>`).join("");
 
       grid.innerHTML = boxes
         .map(
           (b, i) => `
-        <div class="cat-card reveal" data-id="${b.id}" style="animation-delay:${i * 0.08}s">
+        <div class="cat-card reveal${b.soon ? " is-soon" : ""}" data-id="${b.id}" style="animation-delay:${i * 0.08}s">
           <div class="cc-img-wrap">
             <img src="${b.img}" alt="${b.name}" loading="lazy">
             <div class="cc-overlay"></div>
@@ -390,25 +321,22 @@ export default function Home() {
             </div>
           </div>
           <div class="cc-bottom">
-            <div class="cc-price-block">
-              <span class="cc-price">${b.price}€</span>
-              <span class="cc-price-old">${b.oldPrice}€</span>
-              <span class="cc-save">−${pct(b)}%</span>
-            </div>
-            <div class="cc-stars">${stars(b.rating)}<span class="cc-stars-count">${b.rating} (${b.ratingCount} avis)</span></div>
-            <div class="cc-pills">
-              ${b.includes
-                .slice(0, 3)
-                .map(
-                  (inc: any) =>
-                    `<span class="cc-pill">${inc.icon} ${inc.label.split("(")[0].trim()}</span>`,
-                )
-                .join("")}
-            </div>
-            <div class="cc-actions">
-              <button class="btn-detail" data-detail="${b.id}">Voir le détail</button>
-              <button class="btn-add" data-add="${b.id}">Ajouter au panier</button>
-            </div>
+            ${
+              b.soon
+                ? `<div class="cc-price-block"><span class="cc-soon">Bientôt disponible</span></div>
+                   <div class="cc-pills"><span class="cc-pill">⏱ ${b.duration}</span></div>
+                   <div class="cc-actions"><button class="btn-detail" disabled>Arrive bientôt</button></div>`
+                : `<div class="cc-price-block"><span class="cc-from">dès</span><span class="cc-price">${eur(minPrice)}</span></div>
+                   <div class="cc-pills">
+                     <span class="cc-pill">⏱ ${b.duration}</span>
+                     <span class="cc-pill">🧶 Mèches ${b.meches}</span>
+                     <span class="cc-pill">📏 3 longueurs</span>
+                   </div>
+                   <div class="cc-actions">
+                     <button class="btn-detail" data-detail="${b.id}">Voir le détail</button>
+                     <button class="btn-add" data-detail="${b.id}">Composer ma box</button>
+                   </div>`
+            }
           </div>
         </div>`,
         )
@@ -420,19 +348,9 @@ export default function Home() {
           openProduct((btn as HTMLElement).dataset.detail!);
         }),
       );
-      grid.querySelectorAll("[data-add]").forEach((btn) =>
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          quickAdd((btn as HTMLElement).dataset.add!);
-        }),
+      grid.querySelectorAll(".cat-card:not(.is-soon)").forEach((card) =>
+        card.addEventListener("click", () => openProduct((card as HTMLElement).dataset.id!)),
       );
-      grid
-        .querySelectorAll(".cat-card")
-        .forEach((card) =>
-          card.addEventListener("click", () =>
-            openProduct((card as HTMLElement).dataset.id!),
-          ),
-        );
       grid.querySelectorAll(".cat-card, button").forEach((el) => {
         el.addEventListener("mouseenter", () => dot.classList.add("hover"));
         el.addEventListener("mouseleave", () => dot.classList.remove("hover"));
@@ -445,40 +363,113 @@ export default function Home() {
       });
     }
 
+    /* ══ ACCESSOIRES ══ */
+    function renderAcc() {
+      const grid = document.getElementById("accGrid")!;
+      const sellable = BOXES.filter((b) => !b.soon);
+      const packs = sellable
+        .map(
+          (b) => `<div class="acc-card acc-pack">
+            <div class="acc-ico">📦</div>
+            <div class="acc-name">Pack accessoires ${b.name}</div>
+            <p class="acc-desc">${b.acc.map((a) => ACC[a].name).join(", ")}. Valeur ${eur(accValue(b.acc))}.</p>
+            <div class="acc-row"><span class="acc-price">${eur(b.packPrice)}</span><button class="acc-add" data-pack="${b.id}">Ajouter</button></div>
+          </div>`,
+        )
+        .join("");
+      const solos = Object.entries(ACC)
+        .map(
+          ([id, a]) => `<div class="acc-card">
+            <div class="acc-ico">${a.icon}</div>
+            <div class="acc-name">${a.name}</div>
+            <p class="acc-desc">${a.desc}</p>
+            <div class="acc-row"><span class="acc-price">${eur(a.price)}</span><button class="acc-add" data-acc="${id}">Ajouter</button></div>
+          </div>`,
+        )
+        .join("");
+      grid.innerHTML = packs + solos;
+      grid.querySelectorAll(".acc-add").forEach((btn) =>
+        btn.addEventListener("click", () => {
+          const el = btn as HTMLElement;
+          if (el.dataset.acc) {
+            const a = ACC[el.dataset.acc];
+            addToCart({ key: "acc-" + el.dataset.acc, name: a.name, detail: "Accessoire", price: a.price, img: "" });
+          }
+          if (el.dataset.pack) {
+            const b = BOXES.find((x) => x.id === el.dataset.pack)!;
+            addToCart({
+              key: "pack-" + b.id,
+              name: "Pack accessoires " + b.name,
+              detail: b.acc.map((a) => ACC[a].name).join(", "),
+              price: b.packPrice,
+              img: b.img,
+            });
+          }
+        }),
+      );
+    }
+
     /* ══ MODAL ══ */
-    let currentProduct: any = null;
-    let wishlist: string[] = [];
-    let drawerOpen = false;
+    let currentProduct: Box | null = null;
+    const sel = { formula: "complete", length: "mi", color: "1B" };
+
+    function modalPrice() {
+      return PRICES[sel.formula][sel.length];
+    }
+
+    function renderModalOptions() {
+      const p = currentProduct!;
+      const L = LENGTHS.find((l) => l.id === sel.length)!;
+      const price = modalPrice();
+      const saving = PRICES.meches[sel.length] + accValue(p.acc) - PRICES.complete[sel.length];
+      document.getElementById("modalPriceBig")!.textContent = eur(price);
+      document.getElementById("modalSaveBig")!.textContent = sel.formula === "complete" ? "−" + eur(saving) : "";
+      const opts = document.getElementById("modalOptions")!;
+      opts.innerHTML = `
+        <div class="opt-group">
+          <div class="opt-label">Formule</div>
+          <div class="opt-seg two">
+            <button class="opt-btn${sel.formula === "meches" ? " on" : ""}" data-k="formula" data-v="meches">Mèches seules<small>${eur(PRICES.meches[sel.length])}</small></button>
+            <button class="opt-btn${sel.formula === "complete" ? " on" : ""}" data-k="formula" data-v="complete">Box complète<small>${eur(PRICES.complete[sel.length])} · tu économises ${eur(saving)}</small></button>
+          </div>
+        </div>
+        <div class="opt-group">
+          <div class="opt-label">Longueur</div>
+          <div class="opt-seg three">${LENGTHS.map((l) => `<button class="opt-btn${sel.length === l.id ? " on" : ""}" data-k="length" data-v="${l.id}">${l.label}<small>${l.packs} paquets</small></button>`).join("")}</div>
+        </div>
+        <div class="opt-group">
+          <div class="opt-label">Couleur des mèches · ${COLORS.find((c) => c.id === sel.color)!.label}</div>
+          <div class="opt-swatches">${COLORS.map((c) => `<button class="opt-sw${sel.color === c.id ? " on" : ""}" data-k="color" data-v="${c.id}" aria-label="${c.label}"><i style="background:${c.hex}"></i>${c.id}</button>`).join("")}</div>
+        </div>`;
+      opts.querySelectorAll("[data-k]").forEach((b) =>
+        b.addEventListener("click", () => {
+          const el = b as HTMLElement;
+          (sel as Record<string, string>)[el.dataset.k!] = el.dataset.v!;
+          renderModalOptions();
+        }),
+      );
+      const items = [{ icon: "🧶", label: `${L.packs} paquets de mèches ${p.meches} · couleur ${sel.color}`, off: false }].concat(
+        p.acc.map((a) => ({ icon: ACC[a].icon, label: ACC[a].name, off: sel.formula === "meches" })),
+      );
+      document.getElementById("modalIncludes")!.innerHTML = items
+        .map((inc) => `<div class="cat-m-inc${inc.off ? " is-off" : ""}"><span class="cat-m-inc-icon">${inc.icon}</span><span>${inc.label}</span></div>`)
+        .join("");
+    }
 
     function openProduct(id: string) {
       const p = BOXES.find((b) => b.id === id);
-      if (!p) return;
+      if (!p || p.soon) return;
       currentProduct = p;
-      const pct = Math.round((1 - p.price / p.oldPrice) * 100);
 
       const img = document.getElementById("modalImg") as HTMLImageElement;
       img.src = p.img;
       img.alt = p.name;
-
       const badge = document.getElementById("modalBadge")!;
       badge.textContent = p.badge || "";
       badge.style.display = p.badge ? "block" : "none";
-      document.getElementById("modalPriceBig")!.textContent = p.price + "€";
-      document.getElementById("modalOldBig")!.textContent = p.oldPrice + "€";
-      document.getElementById("modalSaveBig")!.textContent = "−" + pct + "%";
       document.getElementById("modalCat")!.textContent = p.catLabel;
-      document.getElementById("modalTitle")!.innerHTML = p.name.replace(
-        /(Knotless|Vanille|Passion|Boho|Crochet|Perles)/i,
-        "<em>$1</em>",
-      );
+      document.getElementById("modalTitle")!.innerHTML = p.name.replace(/(Knotless|Perles|Crochet)/i, "<em>$1</em>");
       document.getElementById("modalSub")!.textContent = p.subtitle;
-      document.getElementById("modalStars")!.textContent = "★".repeat(
-        Math.round(p.rating),
-      );
-      document.getElementById("modalScore")!.textContent = String(p.rating);
-      document.getElementById("modalRevCount")!.textContent =
-        "(" + p.ratingCount + " avis)";
-
       const diffLabels = ["", "Facile", "Intermédiaire", "Avancée"];
       document.getElementById("modalMeta")!.innerHTML = `
         <div class="cat-meta-item"><span class="cat-meta-icon">⏱</span> ${p.duration}</div>
@@ -487,36 +478,12 @@ export default function Home() {
           <div class="cat-meta-dots">${[1, 2, 3].map((i) => `<div class="cat-meta-dot${i <= p.diff ? " on" : ""}"></div>`).join("")}</div>
           ${diffLabels[p.diff]}
         </div>`;
-
       document.getElementById("modalDesc")!.textContent = p.desc;
-
-      document.getElementById("modalIncludes")!.innerHTML = p.includes
-        .map(
-          (inc: any) =>
-            `<div class="cat-m-inc"><span class="cat-m-inc-icon">${inc.icon}</span><span>${inc.label}</span></div>`,
-        )
-        .join("");
-
-      document.getElementById("modalRevs")!.innerHTML = p.reviews
-        .map(
-          (r: any) => `
-        <div class="cat-m-rev">
-          <div class="cat-m-rev-stars">★★★★★</div>
-          <div class="cat-m-rev-text">«${r.text}»</div>
-          <div class="cat-m-rev-auth">${r.author}</div>
-        </div>`,
-        )
-        .join("");
-
-      const wb = document.getElementById("modalWishBtn")!;
-      wb.textContent = wishlist.includes(p.id) ? "♥" : "♡";
-      wb.classList.toggle("wished", wishlist.includes(p.id));
+      renderModalOptions();
 
       document.getElementById("modalAddBtn")!.classList.remove("added");
       document.getElementById("modalAddIcon")!.textContent = "🛒";
-      document.getElementById("modalAddText")!.textContent =
-        "Ajouter au panier";
-
+      document.getElementById("modalAddText")!.textContent = "Ajouter au panier";
       document.getElementById("productModal")!.classList.add("open");
       document.body.style.overflow = "hidden";
     }
@@ -528,121 +495,169 @@ export default function Home() {
 
     document.getElementById("productModal")?.addEventListener("click", (e) => {
       const t = e.target as HTMLElement;
-      if (t.id === "productModal" || t.classList.contains("modal-backdrop"))
-        closeProduct();
+      if (t.id === "productModal" || t.classList.contains("modal-backdrop")) closeProduct();
     });
-    document
-      .getElementById("modalCloseBtn")
-      ?.addEventListener("click", closeProduct);
+    document.getElementById("modalCloseBtn")?.addEventListener("click", closeProduct);
 
     document.getElementById("modalAddBtn")?.addEventListener("click", () => {
       if (!currentProduct) return;
+      const p = currentProduct;
+      const L = LENGTHS.find((l) => l.id === sel.length)!;
       addToCart({
-        id: currentProduct.id,
-        name: currentProduct.name,
-        price: currentProduct.price,
-        img: currentProduct.imgCart,
+        key: `box-${p.id}-${sel.formula}-${sel.length}-${sel.color}`,
+        name: `${sel.formula === "complete" ? "Box complète" : "Box mèches"} ${p.name}`,
+        detail: `${L.label} (${L.packs} paquets) · couleur ${sel.color}`,
+        price: modalPrice(),
+        img: p.img,
       });
       document.getElementById("modalAddBtn")!.classList.add("added");
       document.getElementById("modalAddIcon")!.textContent = "✓";
       document.getElementById("modalAddText")!.textContent = "Ajouté !";
-      setTimeout(() => closeProduct(), 800);
-    });
-
-    document.getElementById("modalWishBtn")?.addEventListener("click", () => {
-      if (!currentProduct) return;
-      const id = currentProduct.id;
-      const wb = document.getElementById("modalWishBtn")!;
-      if (wishlist.includes(id)) {
-        wishlist = wishlist.filter((w) => w !== id);
-        wb.textContent = "♡";
-        wb.classList.remove("wished");
-        showToast("Retiré des favoris");
-      } else {
-        wishlist.push(id);
-        wb.textContent = "♥";
-        wb.classList.add("wished");
-        showToast("✦ Ajouté aux favoris !");
-      }
+      setTimeout(() => closeProduct(), 700);
     });
 
     /* ══ PANIER ══ */
-    let cart: any[] = [];
-
-    function quickAdd(id: string) {
-      const p = BOXES.find((b) => b.id === id);
-      if (p)
-        addToCart({ id: p.id, name: p.name, price: p.price, img: p.imgCart });
+    type Item = { key: string; name: string; detail: string; price: number; img: string; qty: number };
+    let cart: Item[] = [];
+    try {
+      cart = JSON.parse(localStorage.getItem("abCart") || "[]");
+    } catch {
+      cart = [];
     }
+    const save = () => {
+      try {
+        localStorage.setItem("abCart", JSON.stringify(cart));
+      } catch {}
+    };
+    let drawerOpen = false;
+    let ship: "jour" | "lendemain" | "retrait" = "lendemain";
+    const form = { nom: "", tel: "", adresse: "", cp: "", note: "" };
 
-    function addToCart(product: any) {
-      const ex = cart.find((i) => i.id === product.id);
+    const sameDayOpen = () => new Date().getHours() < CONFIG.cutoffHour;
+    const subtotal = () => cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const shipCost = () => (ship === "retrait" || subtotal() >= CONFIG.freeFrom ? 0 : CONFIG.ship[ship]);
+    const shipLabel = () => ({ jour: "Le jour même", lendemain: "Le lendemain", retrait: "Retrait en main propre" })[ship];
+
+    function addToCart(product: Omit<Item, "qty">) {
+      const ex = cart.find((i) => i.key === product.key);
       if (ex) ex.qty++;
       else cart.push({ ...product, qty: 1 });
+      save();
       renderCart();
       showToast("✦ " + product.name + " ajouté !");
       openDrawer();
     }
-    function removeFromCart(id: string) {
-      cart = cart.filter((i) => i.id !== id);
+    function updateQty(i: number, delta: number) {
+      cart[i].qty += delta;
+      if (cart[i].qty <= 0) cart.splice(i, 1);
+      save();
       renderCart();
     }
-    function updateQty(id: string, delta: number) {
-      const item = cart.find((i) => i.id === id);
-      if (!item) return;
-      item.qty += delta;
-      if (item.qty <= 0) removeFromCart(id);
-      else renderCart();
+
+    function orderText() {
+      const sub = subtotal();
+      const sc = shipCost();
+      let t = "Bonjour Afro Beauty ✨ Je souhaite commander :\n";
+      cart.forEach((c) => (t += `• ${c.qty}× ${c.name} (${c.detail}) : ${eur(c.price * c.qty)}\n`));
+      t += `\nSous-total : ${eur(sub)}\nLivraison : ${shipLabel()} (${sc === 0 ? "offerte" : eur(sc)})\nTotal : ${eur(sub + sc)}\n`;
+      t += `\nNom : ${form.nom}\nTéléphone : ${form.tel}\n`;
+      if (ship !== "retrait") t += `Adresse : ${form.adresse}, ${form.cp} Toulouse\n`;
+      if (form.note.trim()) t += `Note : ${form.note}\n`;
+      return t;
+    }
+    function validate() {
+      if (!form.nom.trim()) return "Indique ton prénom et ton nom.";
+      if (form.tel.replace(/\D/g, "").length < 9) return "Indique un numéro de téléphone valide.";
+      if (ship !== "retrait") {
+        if (!form.adresse.trim()) return "Indique ton adresse de livraison.";
+        if (!/^31[0-5]00$/.test(form.cp.trim())) return "On livre uniquement à Toulouse pour l'instant (31000 à 31500).";
+      }
+      return "";
+    }
+    function updateWaLink() {
+      const a = document.getElementById("waBtn") as HTMLAnchorElement | null;
+      if (a) a.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(orderText())}`;
     }
 
     function renderCart() {
+      if (!sameDayOpen() && ship === "jour") ship = "lendemain";
       const count = cart.reduce((s, i) => s + i.qty, 0);
-      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
       const badge = document.getElementById("cartBadge")!;
       badge.textContent = String(count);
       badge.style.display = count > 0 ? "flex" : "none";
-      document.getElementById("drawerTotal")!.textContent = total + "€";
       const foot = document.getElementById("drawerFoot")!;
       const body = document.getElementById("drawerBody")!;
       if (!cart.length) {
-        body.innerHTML =
-          '<div class="d-empty"><span>🛒</span><p>Ton panier est vide</p></div>';
+        body.innerHTML = '<div class="d-empty"><span>🛒</span><p>Ton panier est vide</p></div>';
         foot.style.display = "none";
         return;
       }
       foot.style.display = "block";
-      body.innerHTML = cart
-        .map(
-          (item) => `
-        <div class="d-item">
-          <img class="d-img" src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">
-          <div class="d-info"><div class="d-name">${item.name}</div><div class="d-price">${item.price * item.qty}€</div></div>
-          <div class="d-qty">
-            <button class="qty-b" data-id="${item.id}" data-delta="-1">−</button>
-            <span class="qty-n">${item.qty}</span>
-            <button class="qty-b" data-id="${item.id}" data-delta="1">+</button>
+      const sub = subtotal();
+      const sc = shipCost();
+      const missing = CONFIG.freeFrom - sub;
+      const free = sub >= CONFIG.freeFrom;
+      body.innerHTML = `
+        <div class="d-items">${cart
+          .map(
+            (item, i) => `
+          <div class="d-item">
+            ${item.img ? `<img class="d-img" src="${item.img}" alt="" onerror="this.style.display='none'">` : `<div class="d-img d-img-ph">✦</div>`}
+            <div class="d-info"><div class="d-name">${item.name}</div><div class="d-detail">${item.detail}</div><div class="d-price">${eur(item.price * item.qty)}</div></div>
+            <div class="d-qty">
+              <button class="qty-b" data-i="${i}" data-delta="-1" aria-label="Retirer un">−</button>
+              <span class="qty-n">${item.qty}</span>
+              <button class="qty-b" data-i="${i}" data-delta="1" aria-label="Ajouter un">+</button>
+            </div>
+          </div>`,
+          )
+          .join("")}</div>
+        ${missing > 0 && ship !== "retrait" ? `<div class="d-free">Plus que <b>${eur(missing)}</b> pour la livraison offerte.</div>` : ""}
+        <div class="d-section">
+          <div class="opt-label">Livraison à Toulouse</div>
+          <div class="d-ship">
+            <label class="${sameDayOpen() ? "" : "disabled"}"><input type="radio" name="ship" value="jour" ${ship === "jour" ? "checked" : ""} ${sameDayOpen() ? "" : "disabled"}> Le jour même${sameDayOpen() ? "" : " (avant 14h)"}<span>${free ? "Offerte" : eur(CONFIG.ship.jour)}</span></label>
+            <label><input type="radio" name="ship" value="lendemain" ${ship === "lendemain" ? "checked" : ""}> Le lendemain<span>${free ? "Offerte" : eur(CONFIG.ship.lendemain)}</span></label>
+            <label><input type="radio" name="ship" value="retrait" ${ship === "retrait" ? "checked" : ""}> Retrait en main propre<span>Gratuit</span></label>
           </div>
-          <button class="d-rm" data-id="${item.id}">✕</button>
-        </div>`,
-        )
-        .join("");
-      body
-        .querySelectorAll(".qty-b")
-        .forEach((btn) =>
-          btn.addEventListener("click", () =>
-            updateQty(
-              (btn as HTMLElement).dataset.id!,
-              parseInt((btn as HTMLElement).dataset.delta!),
-            ),
-          ),
-        );
-      body
-        .querySelectorAll(".d-rm")
-        .forEach((btn) =>
-          btn.addEventListener("click", () =>
-            removeFromCart((btn as HTMLElement).dataset.id!),
-          ),
-        );
+        </div>
+        <div class="d-section d-form">
+          <label>Prénom et nom<input data-f="nom" autocomplete="name" value="${esc(form.nom)}"></label>
+          <label>Téléphone<input data-f="tel" type="tel" autocomplete="tel" value="${esc(form.tel)}"></label>
+          ${
+            ship !== "retrait"
+              ? `<label>Adresse<input data-f="adresse" autocomplete="street-address" value="${esc(form.adresse)}"></label>
+                 <label>Code postal (Toulouse)<input data-f="cp" inputmode="numeric" maxlength="5" autocomplete="postal-code" value="${esc(form.cp)}"></label>`
+              : ""
+          }
+          <label>Note (optionnel)<textarea data-f="note" rows="2" placeholder="Code d'entrée, créneau, mélange de couleurs…">${esc(form.note)}</textarea></label>
+        </div>`;
+      document.getElementById("drawerSub")!.textContent = eur(sub);
+      document.getElementById("drawerShip")!.textContent = sc === 0 ? "Offerte" : eur(sc);
+      document.getElementById("drawerTotal")!.textContent = eur(sub + sc);
+      document.getElementById("drawerErr")!.textContent = "";
+
+      body.querySelectorAll(".qty-b").forEach((btn) =>
+        btn.addEventListener("click", () => {
+          const el = btn as HTMLElement;
+          updateQty(parseInt(el.dataset.i!), parseInt(el.dataset.delta!));
+        }),
+      );
+      body.querySelectorAll('input[name="ship"]').forEach((r) =>
+        r.addEventListener("change", () => {
+          ship = (r as HTMLInputElement).value as typeof ship;
+          renderCart();
+        }),
+      );
+      body.querySelectorAll("[data-f]").forEach((inp) =>
+        inp.addEventListener("input", () => {
+          const el = inp as HTMLInputElement;
+          (form as Record<string, string>)[el.dataset.f!] = el.value;
+          document.getElementById("drawerErr")!.textContent = "";
+          updateWaLink();
+        }),
+      );
+      updateWaLink();
     }
 
     function openDrawer() {
@@ -657,49 +672,57 @@ export default function Home() {
       document.getElementById("drawerOverlay")!.classList.remove("open");
       document.body.style.overflow = "";
     }
-    function toggleDrawer() {
-      drawerOpen ? closeDrawer() : openDrawer();
-    }
+    const toggleDrawer = () => (drawerOpen ? closeDrawer() : openDrawer());
+    document.getElementById("navCartBtn")?.addEventListener("click", toggleDrawer);
+    document.getElementById("drawerOverlay")?.addEventListener("click", toggleDrawer);
+    document.getElementById("drawerCloseBtn")?.addEventListener("click", toggleDrawer);
 
-    document
-      .getElementById("navCartBtn")
-      ?.addEventListener("click", toggleDrawer);
-    document
-      .getElementById("drawerOverlay")
-      ?.addEventListener("click", toggleDrawer);
-    document
-      .getElementById("drawerCloseBtn")
-      ?.addEventListener("click", toggleDrawer);
+    document.getElementById("waBtn")?.addEventListener("click", (e) => {
+      const err = validate();
+      if (err) {
+        e.preventDefault();
+        document.getElementById("drawerErr")!.textContent = err;
+      }
+    });
 
-    document
-      .getElementById("checkoutBtn")
-      ?.addEventListener("click", async () => {
+    const checkoutBtn = document.getElementById("checkoutBtn") as HTMLButtonElement | null;
+    if (checkoutBtn) {
+      checkoutBtn.style.display = CONFIG.stripeEnabled ? "flex" : "none";
+      checkoutBtn.addEventListener("click", async () => {
         if (!cart.length) return;
-        const btn = document.getElementById("checkoutBtn") as HTMLButtonElement;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Redirection...';
+        const err = validate();
+        if (err) {
+          document.getElementById("drawerErr")!.textContent = err;
+          return;
+        }
+        checkoutBtn.disabled = true;
+        checkoutBtn.innerHTML = '<span class="spinner"></span> Redirection...';
         try {
           const res = await fetch("/api/create-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               items: cart.map((i) => ({
-                productId: i.id,
                 name: i.name,
-                price: i.price * 100,
+                detail: i.detail,
+                price: Math.round(i.price * 100),
                 quantity: i.qty,
               })),
+              shipping: { label: shipLabel(), amount: Math.round(shipCost() * 100) },
+              customer: form,
             }),
           });
           const data = await res.json();
           if (data.url) window.location.href = data.url;
-          else alert("Erreur de redirection.");
+          else throw new Error(data.error || "Erreur");
         } catch {
-          btn.disabled = false;
-          btn.innerHTML = "🔒 Payer maintenant";
-          alert("Erreur de connexion.");
+          checkoutBtn.disabled = false;
+          checkoutBtn.innerHTML = "🔒 Payer par carte";
+          document.getElementById("drawerErr")!.textContent =
+            "Le paiement par carte n'a pas marché. Envoie ta commande sur WhatsApp.";
         }
       });
+    }
 
     function showToast(msg: string) {
       const t = document.getElementById("toast")!;
@@ -717,106 +740,40 @@ export default function Home() {
 
     /* ══ INIT ══ */
     renderGrid();
+    renderAcc();
+    renderCart();
   }, []);
 
   /* ════════════════ JSX ════════════════ */
   return (
     <>
       <div className="cursor-dot" id="cursorDot"></div>
-      <div className="toast" id="toast"></div>
+      <div className="toast" id="toast" role="status" aria-live="polite"></div>
 
       {/* NAV */}
       <nav>
         <a className="nav-logo" href="#">
-          <svg viewBox="0 0 34 34" fill="none" width="32" height="32">
-            <defs>
-              <linearGradient id="nG" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#E8C97A" />
-                <stop offset="100%" stopColor="#8B6914" />
-              </linearGradient>
-            </defs>
-            <line
-              x1="17"
-              y1="3"
-              x2="17"
-              y2="31"
-              stroke="url(#nG)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-            />
-            <path
-              d="M5 31 L17 3"
-              stroke="url(#nG)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-            />
-            <line
-              x1="8"
-              y1="21"
-              x2="17"
-              y2="21"
-              stroke="url(#nG)"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-            <path
-              d="M17 3 Q29 3 29 9 Q29 17 17 17"
-              stroke="url(#nG)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-            <path
-              d="M17 17 Q31 17 31 24 Q31 31 17 31"
-              stroke="url(#nG)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-            <circle cx="17" cy="3" r="2.2" fill="#E8C97A" />
-            <circle cx="17" cy="31" r="2.2" fill="#E8C97A" />
-          </svg>
+          <Logo id="nG" size={32} />
           <div>
             <span className="nav-brand">Afro Beauty</span>
-            <span className="nav-sub">Box · Beauté · Afro</span>
+            <span className="nav-sub">Box · Tresses · Toulouse</span>
           </div>
         </a>
         <ul className="nav-links">
-          <li>
-            <span className="nav-link" data-scroll="boxes">
-              Nos box
-            </span>
-          </li>
-          <li>
-            <span className="nav-link" data-scroll="how">
-              Comment ça marche
-            </span>
-          </li>
-          <li>
-            <span className="nav-link" data-scroll="reviews">
-              Avis
-            </span>
-          </li>
+          <li><span className="nav-link" data-scroll="boxes">Nos box</span></li>
+          <li><span className="nav-link" data-scroll="accessoires">Accessoires</span></li>
+          <li><span className="nav-link" data-scroll="livraison">Livraison</span></li>
+          <li><span className="nav-link" data-scroll="faq">FAQ</span></li>
         </ul>
         <div className="nav-right">
-          <div
-            className="theme-toggle"
-            id="themeToggle"
-            title="Changer le thème"
-          >
+          <div className="theme-toggle" id="themeToggle" title="Changer le thème">
             <div className="theme-toggle-knob">
-              <span id="themeIcon">🌙</span>
+              <span id="themeIcon">☀️</span>
             </div>
           </div>
           <button className="nav-cart" id="navCartBtn">
             🛒 Panier
-            <span
-              className="cart-badge"
-              id="cartBadge"
-              style={{ display: "none" }}
-            >
-              0
-            </span>
+            <span className="cart-badge" id="cartBadge" style={{ display: "none" }}>0</span>
           </button>
         </div>
       </nav>
@@ -827,7 +784,7 @@ export default function Home() {
         <div className="hero-dark-overlay"></div>
         <div className="hero-particles" id="particles"></div>
         <div className="hero-content">
-          <div className="hero-tag">✦ La box beauté afro</div>
+          <div className="hero-tag">✦ Box tresses · Livrée à Toulouse</div>
           <h1 className="hero-title">
             Coiffée,
             <br />
@@ -836,71 +793,41 @@ export default function Home() {
             toi.
           </h1>
           <p className="hero-sub">
-            Tout ce qu&apos;il te faut dans une box — mèches, accessoires &amp;
-            tuto vidéo inclus.
+            Une box par coiffure : les mèches qu&apos;il te faut pour ta longueur, et tous les
+            accessoires. Livrée le jour même à Toulouse.
           </p>
           <div className="hero-btns">
-            <button className="btn-bord" data-scroll="boxes">
-              Choisir ma box
-            </button>
-            <button className="btn-outline" data-scroll="how">
-              Comment ça marche
-            </button>
+            <button className="btn-bord" data-scroll="boxes">Choisir ma box</button>
+            <button className="btn-outline" data-scroll="how">Comment ça marche</button>
           </div>
         </div>
         <div className="hero-stats">
-          <div className="hstat">
-            <div>
-              <div className="hstat-num">500+</div>
-              <div className="hstat-lbl">Clientes</div>
-            </div>
-          </div>
-          <div className="hstat">
-            <div>
-              <div className="hstat-num">4.9★</div>
-              <div className="hstat-lbl">Note moyenne</div>
-            </div>
-          </div>
-          <div className="hstat">
-            <div>
-              <div className="hstat-num">48h</div>
-              <div className="hstat-lbl">Livraison</div>
-            </div>
-          </div>
-        </div>
-        <div className="scroll-hint">
-          <span>Scroll</span>
-          <div className="scroll-arrow"></div>
+          <div className="hstat"><div><div className="hstat-num">dès 18€</div><div className="hstat-lbl">Box mèches</div></div></div>
+          <div className="hstat"><div><div className="hstat-num">Jour J</div><div className="hstat-lbl">Commande avant 14h</div></div></div>
+          <div className="hstat"><div><div className="hstat-num">0€</div><div className="hstat-lbl">Livraison dès 40€</div></div></div>
         </div>
       </section>
 
-      {/* STRIP */}
-      <div className="strip">
+      {/* STRIP (la liste est doublée pour le défilement en boucle) */}
+      <div className="strip" aria-hidden="true">
         <div className="strip-track">
-          {[
-            "Livraison offerte en France",
-            "Tuto vidéo inclus",
-            "Paiement Stripe sécurisé",
-            "Retours gratuits sous 14 jours",
-            "4.9★ sur 500+ avis vérifiés",
-            "Mèches premium sélectionnées",
-            "Livraison offerte en France",
-            "Tuto vidéo inclus",
-            "Paiement Stripe sécurisé",
-            "Retours gratuits sous 14 jours",
-            "4.9★ sur 500+ avis vérifiés",
-            "Mèches premium sélectionnées",
-          ].map((t, i) => (
-            <div key={i} className="strip-item">
-              {t}
-            </div>
-          ))}
+          {[0, 1].flatMap((k) =>
+            [
+              "Livraison le jour même à Toulouse",
+              "Offerte dès 40€",
+              "Mèches + accessoires",
+              "3 longueurs au choix",
+              "6 couleurs de mèches",
+              "Retrait en main propre possible",
+            ].map((t, i) => (
+              <div key={`${k}-${i}`} className="strip-item">{t}</div>
+            )),
+          )}
         </div>
       </div>
 
-      {/* ══ CATALOGUE INTÉGRÉ ══ */}
+      {/* CATALOGUE */}
       <section className="boxes-section" id="boxes">
-        {/* En-tête */}
         <div className="boxes-header">
           <div className="reveal-left">
             <div className="sec-eyebrow">Nos box</div>
@@ -911,52 +838,43 @@ export default function Home() {
             </h2>
           </div>
           <p className="boxes-header-note reveal-right">
-            Une box, une coiffure.
+            Mèches seules ou box complète.
             <br />
-            Tout est inclus.
+            La complète te revient moins cher.
           </p>
         </div>
-
-        {/* Filtres */}
         <div className="filters-inline">
           <span className="filter-label">Filtrer</span>
-          <button className="filter-btn active" data-filter="all">
-            Toutes <span className="filter-count">6</span>
-          </button>
-          <button className="filter-btn" data-filter="tresses">
-            Tressées <span className="filter-count">2</span>
-          </button>
-          <button className="filter-btn" data-filter="twists">
-            Twists <span className="filter-count">2</span>
-          </button>
-          <button className="filter-btn" data-filter="crochet">
-            Crochet <span className="filter-count">1</span>
-          </button>
-          <button className="filter-btn" data-filter="boho">
-            Boho <span className="filter-count">1</span>
-          </button>
-          <div
-            style={{
-              marginLeft: "auto",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-            }}
-          >
-            <span className="filter-label" id="resultCount">
-              6 box
-            </span>
-            <select id="sortSelect" className="sort-select">
+          <div id="filters" style={{ display: "contents" }}></div>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span className="filter-label" id="resultCount">3 box disponibles</span>
+            <select id="sortSelect" className="sort-select" aria-label="Trier">
               <option value="default">Popularité</option>
-              <option value="price-asc">Prix ↑</option>
-              <option value="price-desc">Prix ↓</option>
               <option value="diff-asc">Plus facile</option>
             </select>
           </div>
         </div>
-
-        {/* Grille */}
         <div className="cat-grid" id="catGrid"></div>
+      </section>
+
+      <div className="divider-gold"></div>
+
+      {/* ACCESSOIRES */}
+      <section className="extra-section" id="accessoires">
+        <div className="boxes-header">
+          <div className="reveal-left">
+            <div className="sec-eyebrow">À l&apos;unité</div>
+            <h2 className="sec-title">
+              Les <em>accessoires.</em>
+            </h2>
+          </div>
+          <p className="boxes-header-note reveal-right">
+            Il te manque juste un gel ou des perles ?
+            <br />
+            Ajoute-les seuls, ou prends un pack.
+          </p>
+        </div>
+        <div className="acc-grid" id="accGrid"></div>
       </section>
 
       <div className="divider-gold"></div>
@@ -970,45 +888,16 @@ export default function Home() {
               Simple comme <em>bonjour.</em>
             </h2>
           </div>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "var(--text-3)",
-              maxWidth: "260px",
-              lineHeight: "1.7",
-              textAlign: "right",
-            }}
-            className="reveal-right"
-          >
+          <p style={{ fontSize: "13px", color: "var(--text-3)", maxWidth: "260px", lineHeight: "1.7", textAlign: "right" }} className="reveal-right">
             4 étapes, zéro prise de tête.
           </p>
         </div>
         <div className="how-grid">
           {[
-            {
-              n: "1",
-              icon: "💆🏾‍♀️",
-              h: "Choisis ta coiffure",
-              p: "Braids, twists, knotless… Tu sélectionnes la box de la coiffure que tu veux réaliser.",
-            },
-            {
-              n: "2",
-              icon: "📦",
-              h: "On prépare ta box",
-              p: "Mèches, accessoires, guide illustré et QR code tuto — tout est dedans, sans oubli.",
-            },
-            {
-              n: "3",
-              icon: "🚚",
-              h: "Livraison en 48h",
-              p: "Partout en France et en Europe. Emballage soigné, livraison suivie.",
-            },
-            {
-              n: "4",
-              icon: "✨",
-              h: "Tu brilles",
-              p: "Suis le tuto vidéo exclusif, utilise le guide et obtiens la coiffure que tu voulais.",
-            },
+            { n: "1", icon: "💆🏾‍♀️", h: "Choisis ta coiffure", p: "Knotless, nattes avec perles ou crochet : chaque box est pensée pour une coiffure précise." },
+            { n: "2", icon: "📏", h: "Ta longueur, ta couleur", p: "Courte, mi-longue ou longue : on met le bon nombre de paquets, dans la couleur que tu veux." },
+            { n: "3", icon: "🛵", h: "Livrée aujourd'hui", p: "Commande avant 14h, livrée le jour même partout à Toulouse. Sinon, le lendemain." },
+            { n: "4", icon: "✨", h: "Tu brilles", p: "Tu as tout sous la main pour te coiffer le soir même, sans courir les magasins." },
           ].map((s, i) => (
             <div key={i} className={`how-step reveal delay-${i + 1}`}>
               <div className="step-bg-num">{s.n}</div>
@@ -1022,59 +911,61 @@ export default function Home() {
 
       <div className="divider-gold"></div>
 
-      {/* REVIEWS */}
-      <section className="reviews-section" id="reviews">
-        <div className="reviews-header">
+      {/* LIVRAISON */}
+      <section className="extra-section" id="livraison">
+        <div className="boxes-header">
           <div className="reveal-left">
-            <div className="sec-eyebrow">Avis clients</div>
+            <div className="sec-eyebrow">Toulouse uniquement, pour l&apos;instant</div>
             <h2 className="sec-title">
-              Elles parlent
-              <br />
-              mieux que <em>nous.</em>
+              La <em>livraison.</em>
             </h2>
           </div>
-          <div className="reviews-score reveal-right">
-            <div className="score-big">4.9</div>
-            <div className="score-stars">★★★★★</div>
-            <div className="score-lbl">+500 avis vérifiés</div>
+          <p className="boxes-header-note reveal-right">
+            On livre dans tout Toulouse (31000 à 31500).
+            <br />
+            D&apos;autres villes arrivent bientôt.
+          </p>
+        </div>
+        <div className="ship-grid">
+          {[
+            { p: "3,90€", h: "Le jour même", t: "Commande passée avant 14h, livrée dans la soirée.", hl: true },
+            { p: "1,90€", h: "Le lendemain", t: "Commande passée après 14h, livrée le jour suivant." },
+            { p: "Offerte", h: "Dès 40€ d'achat", t: "Valable sur la livraison du jour même comme du lendemain." },
+            { p: "0€", h: "Retrait en main propre", t: "On convient ensemble d'un point de rendez-vous à Toulouse." },
+          ].map((c, i) => (
+            <div key={i} className={`ship-card reveal delay-${i + 1}${c.hl ? " hl" : ""}`}>
+              <div className="ship-price">{c.p}</div>
+              <div className="ship-h">{c.h}</div>
+              <p className="ship-t">{c.t}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="divider-gold"></div>
+
+      {/* FAQ */}
+      <section className="extra-section" id="faq">
+        <div className="boxes-header">
+          <div className="reveal-left">
+            <div className="sec-eyebrow">Questions</div>
+            <h2 className="sec-title">
+              Tu te <em>demandes…</em>
+            </h2>
           </div>
         </div>
-        <div className="reviews-grid">
+        <div className="faq-list">
           {[
-            {
-              tag: "Knotless Braids",
-              text: "J'ai réussi mes knotless du premier coup grâce au tuto. Je suis trop fière !",
-              av: "A",
-              name: "Aminata D.",
-              city: "Paris · il y a 2 semaines",
-            },
-            {
-              tag: "Crochet Braids",
-              text: "En 1h30 j'avais une coiffure de rêve. L'aiguille crochet incluse change tout !",
-              av: "B",
-              name: "Binta F.",
-              city: "Lyon · il y a 1 mois",
-            },
-            {
-              tag: "Boho Braids",
-              text: "La coiffure la plus belle que j'ai jamais portée. Tout le monde me demande où je l'ai apprise !",
-              av: "S",
-              name: "Safi O.",
-              city: "Bordeaux · il y a 3 semaines",
-            },
-          ].map((r, i) => (
-            <div key={i} className={`review-card reveal delay-${i + 1}`}>
-              <div className="rev-tag">{r.tag}</div>
-              <div className="rev-stars">★★★★★</div>
-              <div className="rev-text">&ldquo;{r.text}&rdquo;</div>
-              <div className="rev-author">
-                <div className="rev-av">{r.av}</div>
-                <div>
-                  <div className="rev-name">{r.name}</div>
-                  <div className="rev-city">{r.city}</div>
-                </div>
-              </div>
-            </div>
+            { q: "Combien de paquets de mèches il me faut ?", a: "La longueur choisie fixe le nombre de paquets : 4 pour une coiffure courte, 6 pour une mi-longue, 8 pour une longue. Pour des tresses très fines ou très volumineuses, écris-nous et on adapte la box." },
+            { q: "Comment je passe commande ?", a: "Ajoute ta box au panier, choisis ta livraison et remplis ton adresse. Ta commande s'envoie sur notre WhatsApp, on te la confirme et on te donne l'heure de livraison." },
+            { q: "Comment je paie ?", a: "Après confirmation, on t'envoie un lien de paiement sécurisé par carte. Tu peux aussi payer à la livraison." },
+            { q: "Je peux choisir la couleur des mèches ?", a: "Oui : noir naturel, brun foncé, châtain, miel, cuivré ou blond. Pour un mélange de couleurs, précise-le dans la note de commande." },
+            { q: "Vous livrez en dehors de Toulouse ?", a: "Pas encore. On commence par Toulouse pour garantir la livraison rapide, et on ouvre d'autres villes bientôt." },
+          ].map((f, i) => (
+            <details key={i} className="faq-item">
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
           ))}
         </div>
       </section>
@@ -1092,12 +983,8 @@ export default function Home() {
               et confiante ?
             </em>
           </h2>
-          <p className="cta-sub">
-            Rejoins les 500+ femmes qui ont dit stop à la galère.
-          </p>
-          <button className="btn-gold" data-scroll="boxes">
-            Choisir ma box →
-          </button>
+          <p className="cta-sub">Commande avant 14h, coiffe-toi ce soir.</p>
+          <button className="btn-gold" data-scroll="boxes">Choisir ma box →</button>
         </div>
       </div>
 
@@ -1105,140 +992,49 @@ export default function Home() {
       <footer>
         <div className="footer-top">
           <div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                marginBottom: "14px",
-              }}
-            >
-              <svg viewBox="0 0 34 34" fill="none" width="28" height="28">
-                <defs>
-                  <linearGradient id="fG" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#E8C97A" />
-                    <stop offset="100%" stopColor="#8B6914" />
-                  </linearGradient>
-                </defs>
-                <line
-                  x1="17"
-                  y1="3"
-                  x2="17"
-                  y2="31"
-                  stroke="url(#fG)"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M5 31 L17 3"
-                  stroke="url(#fG)"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                />
-                <line
-                  x1="8"
-                  y1="21"
-                  x2="17"
-                  y2="21"
-                  stroke="url(#fG)"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M17 3 Q29 3 29 9 Q29 17 17 17"
-                  stroke="url(#fG)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-                <path
-                  d="M17 17 Q31 17 31 24 Q31 31 17 31"
-                  stroke="url(#fG)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-                <circle cx="17" cy="3" r="2.2" fill="#E8C97A" />
-                <circle cx="17" cy="31" r="2.2" fill="#E8C97A" />
-              </svg>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
+              <Logo id="fG" size={28} />
               <div>
-                <span className="nav-brand" style={{ fontSize: "15px" }}>
-                  Afro Beauty
-                </span>
-                <span className="nav-sub" style={{ display: "block" }}>
-                  Box · Beauté · Afro
-                </span>
+                <span className="nav-brand" style={{ fontSize: "15px" }}>Afro Beauty</span>
+                <span className="nav-sub" style={{ display: "block" }}>Box · Tresses · Toulouse</span>
               </div>
             </div>
             <p className="footer-brand-p">
-              La box qui te livre tout pour te coiffer, sans chercher.
+              La box qui te livre tout pour te coiffer, sans chercher. WhatsApp : 06 02 56 74 74
             </p>
           </div>
           <div className="footer-col">
             <h5>Box</h5>
             <ul>
-              <li>
-                <span className="footer-link" data-scroll="boxes">
-                  Knotless Braids
-                </span>
-              </li>
-              <li>
-                <span className="footer-link" data-scroll="boxes">
-                  Nattes avec Perles
-                </span>
-              </li>
-              <li>
-                <span className="footer-link" data-scroll="boxes">
-                  Twist Vanille
-                </span>
-              </li>
-              <li>
-                <span className="footer-link" data-scroll="boxes">
-                  Crochet Braids
-                </span>
-              </li>
+              <li><span className="footer-link" data-scroll="boxes">Knotless Braids</span></li>
+              <li><span className="footer-link" data-scroll="boxes">Nattes avec Perles</span></li>
+              <li><span className="footer-link" data-scroll="boxes">Crochet Braids</span></li>
+              <li><span className="footer-link" data-scroll="accessoires">Accessoires</span></li>
             </ul>
           </div>
           <div className="footer-col">
             <h5>Aide</h5>
             <ul>
-              <li>
-                <a href="#">Livraison</a>
-              </li>
-              <li>
-                <a href="#">Retours</a>
-              </li>
-              <li>
-                <a href="#">FAQ</a>
-              </li>
-              <li>
-                <a href="#">Contact</a>
-              </li>
+              <li><span className="footer-link" data-scroll="livraison">Livraison</span></li>
+              <li><span className="footer-link" data-scroll="faq">FAQ</span></li>
+              <li><a href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">Contact WhatsApp</a></li>
             </ul>
           </div>
           <div className="footer-col">
             <h5>Suivre</h5>
             <ul>
-              <li>
-                <a href="#">Instagram</a>
-              </li>
-              <li>
-                <a href="#">TikTok</a>
-              </li>
-              <li>
-                <a href="#">Pinterest</a>
-              </li>
+              <li><a href="#">Instagram</a></li>
+              <li><a href="#">TikTok</a></li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
           <div className="footer-copy">
-            © 2025 <span>Afro Beauty</span> · Tous droits réservés
+            © 2026 <span>Afro Beauty</span> · Tous droits réservés
           </div>
           <div className="footer-socials">
             <a href="#">Instagram</a>
             <a href="#">TikTok</a>
-            <a href="#">Pinterest</a>
           </div>
         </div>
       </footer>
@@ -1247,9 +1043,7 @@ export default function Home() {
       <div className="modal-overlay" id="productModal">
         <div className="modal-backdrop"></div>
         <div className="modal-box">
-          <button className="modal-close" id="modalCloseBtn">
-            ✕
-          </button>
+          <button className="modal-close" id="modalCloseBtn" aria-label="Fermer">✕</button>
           <div className="modal-img-side">
             <img id="modalImg" src="" alt="" />
             <div className="modal-img-gradient"></div>
@@ -1257,7 +1051,6 @@ export default function Home() {
             <div className="modal-price-overlay">
               <div className="modal-price-big">
                 <span id="modalPriceBig"></span>
-                <span className="old" id="modalOldBig"></span>
                 <span className="save" id="modalSaveBig"></span>
               </div>
             </div>
@@ -1266,32 +1059,22 @@ export default function Home() {
             <div className="modal-eyebrow" id="modalCat"></div>
             <h2 className="modal-title" id="modalTitle"></h2>
             <div className="modal-subtitle" id="modalSub"></div>
-            <div className="modal-rating">
-              <div className="modal-stars" id="modalStars"></div>
-              <span className="modal-score" id="modalScore"></span>
-              <span className="modal-rev-count" id="modalRevCount"></span>
-            </div>
             <div className="modal-meta" id="modalMeta"></div>
             <p className="modal-desc" id="modalDesc"></p>
-            <div className="modal-includes-title">Contenu de la box</div>
+            <div id="modalOptions"></div>
+            <div className="modal-includes-title">Dans ta box</div>
             <div className="modal-includes-grid" id="modalIncludes"></div>
-            <div className="modal-reviews-label">Avis clientes</div>
-            <div className="modal-revs-list" id="modalRevs"></div>
             <div className="modal-actions">
               <div className="modal-btn-row">
                 <button className="btn-modal-add" id="modalAddBtn">
                   <span id="modalAddIcon">🛒</span>
                   <span id="modalAddText">Ajouter au panier</span>
                 </button>
-                <button className="btn-modal-wish" id="modalWishBtn">
-                  ♡
-                </button>
               </div>
               <div className="modal-guarantee">
-                <span className="guarantee-item">Livraison offerte</span>
-                <span className="guarantee-item">Retour 14 jours</span>
-                <span className="guarantee-item">Paiement sécurisé</span>
-                <span className="guarantee-item">Tuto vidéo inclus</span>
+                <span className="guarantee-item">Livrée le jour même à Toulouse</span>
+                <span className="guarantee-item">Offerte dès 40€</span>
+                <span className="guarantee-item">Retrait possible</span>
               </div>
             </div>
           </div>
@@ -1303,9 +1086,7 @@ export default function Home() {
       <div className="drawer" id="drawer">
         <div className="drawer-head">
           <div className="drawer-title">Mon panier</div>
-          <button className="drawer-close" id="drawerCloseBtn">
-            ✕
-          </button>
+          <button className="drawer-close" id="drawerCloseBtn" aria-label="Fermer le panier">✕</button>
         </div>
         <div className="drawer-body" id="drawerBody">
           <div className="d-empty">
@@ -1313,23 +1094,21 @@ export default function Home() {
             <p>Ton panier est vide</p>
           </div>
         </div>
-        <div
-          className="drawer-foot"
-          id="drawerFoot"
-          style={{ display: "none" }}
-        >
+        <div className="drawer-foot" id="drawerFoot" style={{ display: "none" }}>
+          <div className="d-line"><span>Sous-total</span><span id="drawerSub">0€</span></div>
+          <div className="d-line"><span>Livraison</span><span id="drawerShip">0€</span></div>
           <div className="d-total">
             <span className="d-total-lbl">Total</span>
-            <span className="d-total-price" id="drawerTotal">
-              0€
-            </span>
+            <span className="d-total-price" id="drawerTotal">0€</span>
           </div>
-          <button className="d-checkout" id="checkoutBtn">
-            🔒 Payer maintenant
+          <div className="d-err" id="drawerErr" role="alert"></div>
+          <a className="d-checkout d-wa" id="waBtn" href="#" target="_blank" rel="noopener noreferrer">
+            Envoyer ma commande sur WhatsApp
+          </a>
+          <button className="d-checkout d-card" id="checkoutBtn" style={{ display: "none" }}>
+            🔒 Payer par carte
           </button>
-          <p className="d-note">
-            Paiement sécurisé · Visa · Mastercard · Apple Pay
-          </p>
+          <p className="d-note">On te confirme ta commande et l&apos;heure de livraison sur WhatsApp.</p>
         </div>
       </div>
     </>
