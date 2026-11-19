@@ -1,70 +1,64 @@
 'use client'
-import { useEffect } from 'react'
-import { useCart } from '@/lib/cart'
-import Nav from '@/components/Nav'
-import AbLogo from '@/components/AbLogo'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { CONFIG, eur } from '@/lib/catalog'
+
+type PaidOrder = { ref: string; total: number; text: string }
 
 export default function SuccessPage() {
-  const { clear } = useCart()
-  const router = useRouter()
+  const [order, setOrder] = useState<PaidOrder | null>(null)
 
-  useEffect(() => { clear() }, [])
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'light')
+    try {
+      const raw = localStorage.getItem('abPaidOrder')
+      if (raw) setOrder(JSON.parse(raw))
+      localStorage.removeItem('abCart')
+    } catch {}
+  }, [])
+
+  const waText = order
+    ? `✅ Payé par carte (SumUp) · réf. ${order.ref} · ${eur(order.total)}\n\n${order.text}`
+    : 'Bonjour Afro Beauty, je viens de payer ma commande par carte.'
+  const waUrl = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(waText)}`
 
   return (
-    <>
-      <Nav />
-      <div style={{minHeight:'100vh',background:'radial-gradient(ellipse at center, rgba(109,30,58,.2) 0%, #0D0B09 70%)'}}>
-        <div className="success-page">
-          <div className="success-card fade-up">
-            <div className="success-icon">✨</div>
-
-            <h1 className="success-title">
-              Merci pour<br/>ta <em>commande !</em>
-            </h1>
-
-            <div className="success-divider" />
-
-            <p className="success-sub">
-              Ta box Afro Beauty est en cours de préparation.<br/>
-              Tu vas recevoir un email de confirmation avec le suivi de ta livraison.
-            </p>
-
-            <div style={{
-              background:'rgba(109,30,58,.2)',
-              border:'1px solid rgba(109,30,58,.4)',
-              padding:'24px 32px',
-              marginBottom:32,
-              textAlign:'left'
-            }}>
-              {[
-                ['📦','Ta box est préparée sous 24h'],
-                ['🚚','Livraison en 2-5 jours ouvrés'],
-                ['📱','Tuto vidéo accessible via QR code'],
-                ['💌','Email de confirmation envoyé'],
-              ].map(([icon,label]) => (
-                <div key={label} style={{display:'flex',alignItems:'center',gap:14,padding:'8px 0',fontSize:13,color:'rgba(247,237,218,.7)'}}>
-                  <span style={{fontSize:18}}>{icon}</span>
-                  {label}
-                </div>
-              ))}
-            </div>
-
-            <div style={{marginBottom:32}}>
-              <AbLogo size={60} id="success-ab" />
-            </div>
-
-            <button className="btn-gold" onClick={() => router.push('/')}>
-              Retour à l'accueil
-            </button>
-
-            <p style={{marginTop:24,fontSize:12,color:'var(--grey)',lineHeight:1.8}}>
-              Une question ? Contacte-nous sur Instagram<br/>
-              <strong style={{color:'var(--gold)'}}>@afrobeauty</strong>
-            </p>
-          </div>
-        </div>
+    <div className="success-page" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+      <div className="success-card fade-up">
+        <div className="success-icon">✨</div>
+        <h1 className="success-title">
+          Merci pour
+          <br />
+          ta <em>commande !</em>
+        </h1>
+        <div className="success-divider" />
+        <p className="success-sub">
+          Dernière étape : envoie-nous ta commande sur WhatsApp pour qu&apos;on prépare ta box et
+          qu&apos;on te donne l&apos;heure de livraison.
+          {order && (
+            <>
+              <br />
+              Référence : <strong>{order.ref}</strong>
+            </>
+          )}
+        </p>
+        <a
+          className="d-checkout d-wa"
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginBottom: 16 }}
+          onClick={() => {
+            try {
+              localStorage.removeItem('abPaidOrder')
+            } catch {}
+          }}
+        >
+          Envoyer ma commande sur WhatsApp
+        </a>
+        <a href="/" style={{ fontSize: 12, color: 'var(--text-2)' }}>
+          Retour à l&apos;accueil
+        </a>
       </div>
-    </>
+    </div>
   )
 }

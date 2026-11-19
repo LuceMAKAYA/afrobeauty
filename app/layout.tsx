@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./additions.css";
 import { CartProvider } from "@/lib/cart";
 
 export const metadata: Metadata = {
   title: "Afro Beauty — La box qui te coiffe",
   description:
-    "Box beauté afro prête à coiffer. Mèches, accessoires, guide et tuto vidéo inclus. Livraison 48h en France.",
-  keywords: "box beauté afro, mèches, braids, knotless, twists, coiffure afro",
+    "Box tresses prête à coiffer : mèches et accessoires pour knotless, nattes avec perles et crochet. Livrée le jour même à Toulouse.",
   openGraph: {
     title: "Afro Beauty — La box qui te coiffe",
-    description: "Fini de chercher. Tout est dans la box.",
+    description: "Ta box tresses livrée le jour même à Toulouse.",
     type: "website",
   },
 };
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" data-theme="dark">
+    <html lang="fr" data-theme="light">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
