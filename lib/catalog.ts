@@ -10,9 +10,9 @@ export const CONFIG = {
 };
 
 export const LENGTHS = [
-  { id: "courte", label: "Courte", packs: 4 },
-  { id: "mi", label: "Mi-longue", packs: 6 },
-  { id: "longue", label: "Longue", packs: 8 },
+  { id: "courte", label: "Courte", packs: 3 },
+  { id: "mi", label: "Mi-longue", packs: 5 },
+  { id: "longue", label: "Longue", packs: 7 },
 ];
 
 export const PRICES: Record<string, Record<string, number>> = {
@@ -34,7 +34,6 @@ export const ACC: Record<string, { name: string; price: number; icon: string; de
   enfile: { name: "Enfile-perles", price: 2, icon: "🪡", desc: "Pour passer les perles en quelques secondes." },
   aiguille: { name: "Aiguille crochet", price: 2, icon: "🪝", desc: "Aiguille à clapet pour poser tes mèches crochet." },
   peigne: { name: "Peigne queue de rat", price: 2.5, icon: "🪮", desc: "Pour des raies nettes et des sections propres." },
-  brosse: { name: "Brosse edges", price: 2.5, icon: "🖌️", desc: "Double tête, pour des edges bien dessinés." },
   gel: { name: "Gel edges", price: 5, icon: "🫙", desc: "Tenue forte sans effet carton." },
   huile: { name: "Huile cuir chevelu", price: 6, icon: "💧", desc: "Apaise les démangeaisons sous les tresses." },
   mousse: { name: "Mousse fixante", price: 7, icon: "🫧", desc: "Lisse les frisottis et scelle les tresses." },
@@ -73,7 +72,7 @@ export const BOXES: Box[] = [
     img: "/boxes/knoletss.jpg",
     desc: "La coiffure tendance par excellence. Légères sur le cuir chevelu, sans nœud à la racine : elles durent jusqu'à 8 semaines et s'adaptent à tous les styles.",
     meches: "pré-étirées",
-    acc: ["peigne", "brosse", "gel", "mousse", "bonnet"],
+    acc: ["peigne", "gel", "mousse", "bonnet"],
     packPrice: 15,
   },
   {
@@ -89,7 +88,7 @@ export const BOXES: Box[] = [
     img: "/boxes/natte.jpg",
     desc: "Des nattes classiques sublimées par des perles dorées ou colorées. La box complète inclut les perles et l'enfile-perles pour personnaliser entièrement ta coiffure.",
     meches: "pré-étirées",
-    acc: ["perles", "enfile", "peigne", "brosse", "gel", "mousse"],
+    acc: ["perles", "enfile", "peigne", "gel", "mousse"],
     packPrice: 15,
   },
   {
@@ -105,7 +104,7 @@ export const BOXES: Box[] = [
     img: "/boxes/crochet.jpg",
     desc: "La technique crochet est parfaite si tu veux un résultat rapide et impressionnant. En 1 à 2h, tu obtiens une coiffure volumineuse et protectrice qui dure des semaines.",
     meches: "pré-bouclées",
-    acc: ["aiguille", "peigne", "brosse", "gel", "huile", "bonnet"],
+    acc: ["aiguille", "peigne", "gel", "huile", "bonnet"],
     packPrice: 15,
   },
   {

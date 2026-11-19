@@ -790,7 +790,7 @@ export default function Home() {
         </div>
         <div className="faq-list">
           {[
-            { q: "Combien de paquets de mèches il me faut ?", a: "La longueur choisie fixe le nombre de paquets : 4 pour une coiffure courte, 6 pour une mi-longue, 8 pour une longue. Pour des tresses très fines ou très volumineuses, écris-nous et on adapte la box." },
+            { q: "Combien de paquets de mèches il me faut ?", a: "La longueur choisie fixe le nombre de paquets : 3 pour une coiffure courte, 5 pour une mi-longue, 7 pour une longue. Pour des tresses très fines ou très volumineuses, écris-nous et on adapte la box." },
             { q: "Comment je passe commande ?", a: "Ajoute ta box au panier, choisis ta livraison et remplis ton adresse. Ta commande s'envoie sur notre WhatsApp, on te la confirme et on te donne l'heure de livraison." },
             { q: "Comment je paie ?", a: "Par carte, avec un paiement sécurisé SumUp, ou à la livraison." },
             { q: "Je peux choisir la couleur des mèches ?", a: "Oui : noir naturel, brun foncé, châtain, miel, cuivré ou blond. Pour un mélange de couleurs, précise-le dans la note de commande." },
