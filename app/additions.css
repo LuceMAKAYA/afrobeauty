@@ -260,3 +260,36 @@
 .success-divider { width: 60px; height: 1px; background: var(--gold); margin: 20px auto; }
 .success-sub { font-size: 14px; line-height: 1.7; color: var(--text-2); margin-bottom: 24px; }
 .success-card .d-checkout { width: 100%; }
+
+/* fenêtre produit : le contenu défile pour atteindre « Ajouter au panier » */
+.modal-box {
+  height: min(90vh, 760px);
+  grid-template-rows: minmax(0, 1fr);
+}
+.modal-content-side { min-height: 0; overscroll-behavior: contain; }
+.modal-img-side { min-height: 0; }
+.modal-actions {
+  position: sticky;
+  bottom: -36px;
+  background: var(--bg-card);
+  padding-top: 14px;
+  padding-bottom: 8px;
+  margin-top: auto;
+  z-index: 2;
+}
+@media (max-width: 1000px) {
+  .modal-overlay { padding: 10px; }
+  .modal-box {
+    display: block;
+    height: auto;
+    max-height: calc(100vh - 20px);
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .modal-img-side { height: 240px; min-height: 0; }
+  .modal-img-side img { height: 100%; object-fit: cover; }
+  .modal-content-side { overflow: visible; }
+  .modal-actions { bottom: -28px; box-shadow: 0 -10px 20px var(--bg-card); }
+}
