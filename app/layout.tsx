@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Afro Beauty — La box qui te coiffe",
   description:
     "Box tresses prête à coiffer : mèches et accessoires pour knotless, nattes avec perles et crochet. Livrée le jour même à Toulouse.",
-    openGraph: {
+  openGraph: {
     title: "Afro Beauty — La box qui te coiffe",
     description: "Ta box tresses livrée le jour même à Toulouse.",
     type: "website",
