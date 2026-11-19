@@ -1,168 +1,7 @@
 "use client";
 import { useEffect } from "react";
 
-/* ═════════════ RÉGLAGES (à modifier ici) ═════════════ */
-const CONFIG = {
-  whatsapp: "33602567474", // numéro WhatsApp au format international, sans + ni espaces
-  cutoffHour: 14, // heure limite pour la livraison le jour même
-  freeFrom: 40, // livraison offerte à partir de ce montant (€)
-  ship: { jour: 3.9, lendemain: 1.9, retrait: 0 },
-  // Paiement par carte Stripe : mets NEXT_PUBLIC_STRIPE_ENABLED=true sur Vercel
-  // une fois tes clés Stripe ajoutées. Sinon seule la commande WhatsApp s'affiche.
-  stripeEnabled: process.env.NEXT_PUBLIC_STRIPE_ENABLED === "true",
-};
-
-const LENGTHS = [
-  { id: "courte", label: "Courte", packs: 4 },
-  { id: "mi", label: "Mi-longue", packs: 6 },
-  { id: "longue", label: "Longue", packs: 8 },
-];
-
-const PRICES: Record<string, Record<string, number>> = {
-  meches: { courte: 18, mi: 25, longue: 32 },
-  complete: { courte: 30, mi: 37, longue: 44 },
-};
-
-const COLORS = [
-  { id: "1B", label: "Noir naturel", hex: "#1b1612" },
-  { id: "2", label: "Brun foncé", hex: "#3b2618" },
-  { id: "4", label: "Châtain", hex: "#5e3a22" },
-  { id: "27", label: "Miel", hex: "#b9772f" },
-  { id: "30", label: "Cuivré", hex: "#8f4421" },
-  { id: "613", label: "Blond", hex: "#e6cf96" },
-];
-
-const ACC: Record<string, { name: string; price: number; icon: string; desc: string }> = {
-  perles: { name: "Lot de perles (50)", price: 3, icon: "✨", desc: "Perles dorées et colorées pour finir tes nattes." },
-  enfile: { name: "Enfile-perles", price: 2, icon: "🪡", desc: "Pour passer les perles en quelques secondes." },
-  aiguille: { name: "Aiguille crochet", price: 2, icon: "🪝", desc: "Aiguille à clapet pour poser tes mèches crochet." },
-  peigne: { name: "Peigne queue de rat", price: 2.5, icon: "🪮", desc: "Pour des raies nettes et des sections propres." },
-  brosse: { name: "Brosse edges", price: 2.5, icon: "🖌️", desc: "Double tête, pour des edges bien dessinés." },
-  gel: { name: "Gel edges", price: 5, icon: "🫙", desc: "Tenue forte sans effet carton." },
-  huile: { name: "Huile cuir chevelu", price: 6, icon: "💧", desc: "Apaise les démangeaisons sous les tresses." },
-  mousse: { name: "Mousse fixante", price: 7, icon: "🫧", desc: "Lisse les frisottis et scelle les tresses." },
-  bonnet: { name: "Bonnet satin", price: 7, icon: "🧢", desc: "Protège ta coiffure la nuit pour qu'elle dure plus longtemps." },
-};
-
-type Box = {
-  id: string;
-  name: string;
-  category: string;
-  catLabel: string;
-  subtitle: string;
-  badge: string | null;
-  badgeClass: string;
-  diff: number;
-  duration: string;
-  img: string;
-  desc: string;
-  meches: string;
-  acc: string[];
-  packPrice: number;
-  soon?: boolean;
-};
-
-const BOXES: Box[] = [
-  {
-    id: "knotless",
-    name: "Knotless Braids",
-    category: "tresses",
-    catLabel: "Coiffure tressée",
-    subtitle: "Légères, naturelles, sans nœuds",
-    badge: "⭐ Best-seller",
-    badgeClass: "badge-pop",
-    diff: 2,
-    duration: "4–6h",
-    img: "/boxes/knoletss.jpg",
-    desc: "La coiffure tendance par excellence. Légères sur le cuir chevelu, sans nœud à la racine : elles durent jusqu'à 8 semaines et s'adaptent à tous les styles.",
-    meches: "pré-étirées",
-    acc: ["peigne", "brosse", "gel", "mousse", "bonnet"],
-    packPrice: 15,
-  },
-  {
-    id: "nattes-perles",
-    name: "Nattes avec Perles",
-    category: "tresses",
-    catLabel: "Coiffure tressée",
-    subtitle: "Élégantes & personnalisables",
-    badge: "Nouveau",
-    badgeClass: "badge-new",
-    diff: 2,
-    duration: "3–5h",
-    img: "/boxes/natte.jpg",
-    desc: "Des nattes classiques sublimées par des perles dorées ou colorées. La box complète inclut les perles et l'enfile-perles pour personnaliser entièrement ta coiffure.",
-    meches: "pré-étirées",
-    acc: ["perles", "enfile", "peigne", "brosse", "gel", "mousse"],
-    packPrice: 15,
-  },
-  {
-    id: "crochet",
-    name: "Crochet Braids",
-    category: "crochet",
-    catLabel: "Crochet",
-    subtitle: "Rapide, volumineuse & protectrice",
-    badge: "⚡ Rapide",
-    badgeClass: "badge-excl",
-    diff: 1,
-    duration: "1–2h",
-    img: "/boxes/crochet.jpg",
-    desc: "La technique crochet est parfaite si tu veux un résultat rapide et impressionnant. En 1 à 2h, tu obtiens une coiffure volumineuse et protectrice qui dure des semaines.",
-    meches: "pré-bouclées",
-    acc: ["aiguille", "peigne", "brosse", "gel", "huile", "bonnet"],
-    packPrice: 15,
-  },
-  {
-    id: "french-curls",
-    name: "French Curls",
-    category: "tresses",
-    catLabel: "Coiffure tressée",
-    subtitle: "Élégantes & bouclées",
-    badge: "Bientôt",
-    badgeClass: "badge-new",
-    diff: 2,
-    duration: "6–8h",
-    img: "/boxes/french.jpg",
-    desc: "Bientôt disponible.",
-    meches: "bouclées",
-    acc: [],
-    packPrice: 0,
-    soon: true,
-  },
-  {
-    id: "twist-vanille",
-    name: "Twist Vanille",
-    category: "twists",
-    catLabel: "Coiffure twistée",
-    subtitle: "Douceur & élégance naturelle",
-    badge: "Bientôt",
-    badgeClass: "badge-tend",
-    diff: 1,
-    duration: "2–4h",
-    img: "/boxes/twist%20vanille.jpg",
-    desc: "Bientôt disponible.",
-    meches: "twist",
-    acc: [],
-    packPrice: 0,
-    soon: true,
-  },
-  {
-    id: "boho-braids",
-    name: "Boho Braids",
-    category: "boho",
-    catLabel: "Style Boho",
-    subtitle: "Libre & romantique",
-    badge: "Bientôt",
-    badgeClass: "badge-excl",
-    diff: 3,
-    duration: "5–8h",
-    img: "/boxes/braid%201.jpg",
-    desc: "Bientôt disponible.",
-    meches: "boho",
-    acc: [],
-    packPrice: 0,
-    soon: true,
-  },
-];
+import { CONFIG, LENGTHS, PRICES, COLORS, ACC, BOXES, type Box, type ShipChoice, accValue, eur, shipCostFor, SHIP_LABELS } from "@/lib/catalog";
 
 const CATS = [
   { id: "all", label: "Toutes" },
@@ -172,11 +11,8 @@ const CATS = [
   { id: "boho", label: "Boho" },
 ];
 
-const eur = (n: number) =>
-  n.toLocaleString("fr-FR", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + "€";
 const esc = (s: string) =>
   String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
-const accValue = (ids: string[]) => ids.reduce((s, id) => s + ACC[id].price, 0);
 
 function Logo({ id, size }: { id: string; size: number }) {
   return (
@@ -530,13 +366,13 @@ export default function Home() {
       } catch {}
     };
     let drawerOpen = false;
-    let ship: "jour" | "lendemain" | "retrait" = "lendemain";
+    let ship: ShipChoice = "lendemain";
     const form = { nom: "", tel: "", adresse: "", cp: "", note: "" };
 
     const sameDayOpen = () => new Date().getHours() < CONFIG.cutoffHour;
     const subtotal = () => cart.reduce((s, i) => s + i.price * i.qty, 0);
-    const shipCost = () => (ship === "retrait" || subtotal() >= CONFIG.freeFrom ? 0 : CONFIG.ship[ship]);
-    const shipLabel = () => ({ jour: "Le jour même", lendemain: "Le lendemain", retrait: "Retrait en main propre" })[ship];
+    const shipCost = () => shipCostFor(ship, subtotal());
+    const shipLabel = () => SHIP_LABELS[ship];
 
     function addToCart(product: Omit<Item, "qty">) {
       const ex = cart.find((i) => i.key === product.key);
@@ -687,7 +523,7 @@ export default function Home() {
 
     const checkoutBtn = document.getElementById("checkoutBtn") as HTMLButtonElement | null;
     if (checkoutBtn) {
-      checkoutBtn.style.display = CONFIG.stripeEnabled ? "flex" : "none";
+      checkoutBtn.style.display = CONFIG.sumupEnabled ? "flex" : "none";
       checkoutBtn.addEventListener("click", async () => {
         if (!cart.length) return;
         const err = validate();
@@ -698,26 +534,24 @@ export default function Home() {
         checkoutBtn.disabled = true;
         checkoutBtn.innerHTML = '<span class="spinner"></span> Redirection...';
         try {
-          const res = await fetch("/api/create-checkout", {
+          const res = await fetch("/api/sumup-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              items: cart.map((i) => ({
-                name: i.name,
-                detail: i.detail,
-                price: Math.round(i.price * 100),
-                quantity: i.qty,
-              })),
-              shipping: { label: shipLabel(), amount: Math.round(shipCost() * 100) },
-              customer: form,
-            }),
+            body: JSON.stringify({ lines: cart.map((i) => ({ key: i.key, qty: i.qty })), ship }),
           });
           const data = await res.json();
-          if (data.url) window.location.href = data.url;
-          else throw new Error(data.error || "Erreur");
+          if (!data.url) throw new Error(data.error || "Erreur");
+          // On garde la commande pour l'envoyer sur WhatsApp après le paiement
+          try {
+            localStorage.setItem(
+              "abPaidOrder",
+              JSON.stringify({ ref: data.ref, total: data.total, text: orderText() }),
+            );
+          } catch {}
+          window.location.href = data.url;
         } catch {
           checkoutBtn.disabled = false;
-          checkoutBtn.innerHTML = "🔒 Payer par carte";
+          checkoutBtn.innerHTML = "💳 Payer par carte";
           document.getElementById("drawerErr")!.textContent =
             "Le paiement par carte n'a pas marché. Envoie ta commande sur WhatsApp.";
         }
@@ -1106,7 +940,7 @@ export default function Home() {
             Envoyer ma commande sur WhatsApp
           </a>
           <button className="d-checkout d-card" id="checkoutBtn" style={{ display: "none" }}>
-            🔒 Payer par carte
+            💳 Payer par carte
           </button>
           <p className="d-note">On te confirme ta commande et l&apos;heure de livraison sur WhatsApp.</p>
         </div>
